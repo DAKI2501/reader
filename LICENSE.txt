@@ -1,0 +1,10 @@
+reader – træn hurtiglæsning
+Copyright (c) 2026 Julian Kyhl og Claude
+
+Freeware: Programmet må bruges, kopieres og deles gratis.
+
+Tredjepartskomponenter:
+- pdf.js, Copyright Mozilla Foundation, Apache License 2.0
+  (http://www.apache.org/licenses/LICENSE-2.0). Licensnoten følger med koden i index.html.
+- Ordbogsdata hentes ved brug fra Free Dictionary API (https://dictionaryapi.dev/)
+  og stammer fra Wiktionary, CC BY-SA.
