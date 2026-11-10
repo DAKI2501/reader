@@ -1,6 +1,6 @@
-# reader – træn hurtiglæsning
+# Ψ-reader (Psy-reader) – træn hurtiglæsning
 
-En hurtiglæsningstræner i én enkelt HTML-fil. Den kører i browseren, også uden internet, og gemmer intet andre steder end på din egen enhed.
+Et studieredskab til hurtiglæsning i én enkelt HTML-fil: træn din læsehastighed, eller stream en lang tekst på telefonen. Den kører i browseren, også uden internet, og gemmer intet andre steder end på din egen enhed.
 
 **Åbn den her:** https://daki2501.github.io/reader/
 
