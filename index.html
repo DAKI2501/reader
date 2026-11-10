@@ -115,6 +115,23 @@ body.dragging #input{opacity:.15}
 .speed{display:flex;align-items:center;gap:8px;font-variant-numeric:tabular-nums}
 .speed .spd{width:118px}
 .tools{display:flex;align-items:center;gap:2px}
+.bar .scrollseg{background:var(--panel);padding:3px;border-radius:9px;flex:none}
+.bar .scrollseg button{padding:4px 9px}
+.bar .scrollseg button[aria-pressed=true]{background:var(--paper);color:var(--ink);box-shadow:0 0 0 1px var(--rule)}
+body[data-mode=rsvp] .bar .scrollseg,body[data-mode=free] .bar .scrollseg{visibility:hidden}
+body.playing[data-hide~=speed] .bar .scrollseg{visibility:hidden}
+/* tighter bar when the controls do not fit on one line (set from script, desktop only) */
+.bar.c1{gap:6px}
+.bar.c1 .modes button{padding:6px 8px}
+.bar.c1 .speed{gap:6px}
+.bar.c1 .speed .spd{width:84px}
+.bar.c1 .scrollseg button{padding:4px 7px}
+.bar.c1 .clock{gap:6px}
+.bar.c1 .chip{padding:5px 9px;margin-right:2px}
+.bar.c1 #stop{padding:7px 6px}
+.bar.c1 .icon{width:32px}
+.bar.c3 .speed .spd{width:60px}.bar.c3 .clock select{font-size:12px;padding:5px 2px;max-width:78px}
+.bar.c2 #toStart{order:-3}.bar.c2 .modes{order:-2}.bar.c2 .grow{order:-1;flex:0 0 100%;height:0}.bar.c2 .speed{margin-left:auto}
 .chip{border:1px solid var(--rule);background:transparent;border-radius:999px;padding:5px 11px;font-size:13px;color:var(--muted);white-space:nowrap;margin-right:4px}
 .chip:hover{color:var(--ink)}
 .chip[aria-pressed=true]{background:var(--accent-soft);color:var(--accent);border-color:transparent}
@@ -328,6 +345,8 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
   .bar .grow{order:3;flex:0 0 100%;height:0}
   .bar #toStart{order:4}
   .bar .speed{order:4;flex:1;min-width:0}
+  .bar .scrollseg{order:2}
+  body[data-mode=rsvp] .bar .scrollseg,body[data-mode=free] .bar .scrollseg{display:none}
   .bar .speed .spd{flex:1;width:auto;min-width:50px}
   .bar .speed .unit{display:none}
   .bar .clock{order:4}
@@ -405,6 +424,9 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
     <div class="speed">
       <input type="range" class="spd" id="spd" data-key="wpm" min="50" max="2000" step="10" aria-label="Hastighed i ord pr. minut" title="Hastighed (pil op og ned)">
       <output id="wpmOut">300</output><span class="unit">ord/min</span>
+    </div>
+    <div class="seg scrollseg" data-key="scroll" role="group" aria-label="Rulning" title="Rulning (R): Spring flytter teksten linje for linje, Jævn lader den glide i dit tempo">
+      <button data-v="jump">Spring</button><button data-v="smooth">Jævn</button>
     </div>
     <div class="clock">
       <select data-key="timer" aria-label="Timer">
@@ -546,7 +568,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
     <p class="hint" style="margin:0 0 8px">Vælg, hvad der er synligt, mens teksten kører. Alt kommer frem igen, når du pauser. Mellemrum og Esc virker altid.</p>
     <div class="checks">
       <label><input type="checkbox" data-key="showModes"> Teknikker</label>
-      <label><input type="checkbox" data-key="showSpeed"> Hastighed</label>
+      <label><input type="checkbox" data-key="showSpeed"> Hastighed og rulning</label>
       <label><input type="checkbox" data-key="showClock"> Timer og ur</label>
       <label><input type="checkbox" data-key="showButtons"> Start og Afslut</label>
       <label><input type="checkbox" data-key="showTools"> Værktøjer</label>
@@ -569,6 +591,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
       <kbd>+ −</kbd><span>Skriftstørrelse</span>
       <kbd>S</kbd><span>Indstillinger</span>
       <kbd>F</kbd><span>Fokustilstand</span>
+      <kbd>R</kbd><span>Jævn eller spring rulning</span>
       <kbd>K</kbd><span>Uden stopord til og fra</span>
       <kbd>N</kbd><span>Nøgleord</span>
       <kbd>I</kbd><span>Indhold (kapitler eller sider)</span>
@@ -2174,6 +2197,27 @@ function refreshLayout() {
   updateFixHint();
   if (S.words.length) setUnit(true);
 }
+// Keep the top bar on as few lines as possible, whatever fonts the system has.
+function barRows() {
+  const tops = [];
+  for (const el of E.bar.children) {
+    if (!el.offsetWidth || !el.offsetHeight || getComputedStyle(el).display === 'none') continue;
+    const t = el.offsetTop + el.offsetHeight / 2;
+    if (!tops.some(x => Math.abs(x - t) < 12)) tops.push(t);
+  }
+  return tops.length;
+}
+function fitBar() {
+  E.bar.classList.remove('c1', 'c2', 'c3');
+  if (document.body.dataset.view !== 'reader' || innerWidth <= 720) return;
+  const want = innerWidth <= 1180 ? 2 : 1;
+  if (barRows() <= want) return;
+  E.bar.classList.add('c1');
+  if (barRows() <= want) return;
+  E.bar.classList.add(want > 1 ? 'c3' : 'c2');
+}
+let fitQueued = false;
+window.addEventListener('resize', () => { if (fitQueued) return; fitQueued = true; requestAnimationFrame(() => { fitQueued = false; fitBar(); }); });
 function applyAll() {
   applyLook();
   const mode = cfg('mode');
@@ -2182,6 +2226,7 @@ function applyAll() {
   E.rsvp.hidden = mode !== 'rsvp';
   E.rsvp.classList.toggle('orp', !!cfg('orp'));
   syncControls();
+  fitBar();
   if (!S.playing || !smoothOn()) resetSmooth();
   refreshLayout();
   updateClock(); updateWpm();
@@ -2383,6 +2428,7 @@ document.addEventListener('keydown', e => {
   else if (k === 's' || k === 'S') E.settings.classList.toggle('open');
   else if (k === 'f' || k === 'F') setFocus(!S.focus);
   else if (k === 'k' || k === 'K') toggleNoStop(!settings.nostop);
+  else if (k === 'r' || k === 'R') { const v = cfg('scroll') === 'smooth' ? 'jump' : 'smooth'; setSetting('scroll', v); toast(v === 'smooth' ? 'Jævn rulning' : 'Spring linje for linje', 1200); }
   else if (k === 'n' || k === 'N') openWords();
   else if (k === 'i' || k === 'I') openToc();
   else if (k === '+' || k === '=') fontStep(1);
