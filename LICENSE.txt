@@ -1,4 +1,4 @@
-reader – træn hurtiglæsning
+Ψ-reader (Psy-reader) – træn hurtiglæsning
 Copyright (c) 2026 Julian Kyhl og Claude
 
 Freeware: Programmet må bruges, kopieres og deles gratis.

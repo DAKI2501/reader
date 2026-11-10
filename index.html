@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-  reader – træn hurtiglæsning
+  Ψ-reader (Psy-reader) – træn hurtiglæsning
   Lavet af Julian Kyhl og Claude (Anthropic), 2026.
   Freeware: må bruges, kopieres og deles gratis.
   Indeholder pdf.js © Mozilla Foundation, Apache License 2.0 (licensnoten står i pdf.js-koden længere nede).
@@ -16,8 +16,11 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="reader">
-<title>reader – træn hurtiglæsning</title>
+<meta name="apple-mobile-web-app-title" content="Ψ-reader">
+<meta name="description" content="Psy-reader: træn hurtiglæsning og stream lange tekster. Pacer, fikspunkter, RSVP, jævn rulning, nøgleord, PDF og EPUB. Gratis.">
+<meta property="og:title" content="Ψ-reader – træn hurtiglæsning">
+<meta property="og:description" content="Gratis studieredskab til hurtiglæsning. Læser tekst, PDF og EPUB, også på telefonen.">
+<title>Ψ-reader – træn hurtiglæsning</title>
 <style>
 :root{
   --paper:#ECEEEA; --ink:#1C2126; --muted:#66706B; --faint:#A7AEA9; --rule:#D2D7D1; --panel:#F5F6F3;
@@ -68,7 +71,11 @@ body[data-view=start] #reader,body[data-view=reader] #start{display:none}
 .mark{font:italic 600 23px/1 var(--serif);position:relative;padding-bottom:7px;letter-spacing:.005em}
 .mark::after{content:"";position:absolute;left:.05em;bottom:0;height:3px;width:1.7em;border-radius:2px;background:var(--accent);animation:pen 2.4s cubic-bezier(.5,0,.3,1) .3s 1 both}
 @keyframes pen{from{width:0}to{width:1.7em}}
-.top nav{margin-left:auto;display:flex;gap:4px}
+.menuwrap{margin-left:auto;position:relative}
+.menu{position:absolute;right:0;top:42px;z-index:10;min-width:210px;padding:6px;display:flex;flex-direction:column;background:var(--panel);border-radius:12px;box-shadow:0 18px 50px -18px rgba(0,0,0,.4),0 0 0 1px var(--rule)}
+.menu button{border:0;background:transparent;text-align:left;padding:10px 12px;border-radius:8px;font-size:15px}
+.menu button:hover{background:var(--accent-soft)}
+.menu button:disabled{opacity:.4;cursor:default}
 .intake{width:100%;max-width:860px;margin-top:8vh}
 .intake h1{font:500 clamp(30px,4.4vw,46px)/1.08 var(--serif);margin:0 0 10px;letter-spacing:-.012em}
 .intake .sub{color:var(--muted);margin:0 0 22px;font-size:16px;max-width:52ch}
@@ -285,8 +292,6 @@ dialog::backdrop{background:rgba(18,22,26,.38)}
 .sch-dot{position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px;border-radius:50%;background:var(--accent);pointer-events:none;box-shadow:0 0 0 3px var(--panel)}
 
 @media (max-width:560px){
-  .top{flex-wrap:wrap}
-  .top nav{margin-left:-10px;width:100%}
   .intake{margin-top:4vh}
 }
 .toc{list-style:none;margin:10px 0 0;padding:0;max-height:52vh;overflow:auto;border-top:1px solid var(--rule)}
@@ -344,15 +349,20 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
 <!-- ================= START ================= -->
 <main id="start">
   <header class="top">
-    <div class="mark">reader</div>
-    <nav>
-      <button class="textbtn" data-open="dlgSchulte">Opvarmning</button>
-      <button class="textbtn" data-open="dlgHistory">Historik</button>
-      <button class="textbtn" data-open="dlgHelp">Om teknikkerne</button>
-    </nav>
+    <div class="mark">Ψ-reader</div>
+    <div class="menuwrap">
+      <button class="icon" id="menuBtn" aria-haspopup="true" aria-expanded="false" aria-controls="menu" aria-label="Menu" title="Menu"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <div class="menu" id="menu" hidden>
+        <button id="goProgram" title="Seks trin på ca. 11 minutter: mål din hastighed, træn med pacer og indrykning i højt tempo, og mål igen.">Træningsprogram</button>
+        <button data-open="dlgSchulte">Opvarmning</button>
+        <button data-open="dlgHistory">Historik</button>
+        <button data-open="dlgHelp">Om teknikkerne</button>
+        <button data-open="dlgCredits">Credits</button>
+      </div>
+    </div>
   </header>
 
-  <div class="nojs" id="nojs">Denne visning kører ikke JavaScript, så reader kan ikke starte. Det sker typisk, når en HTML-fil åbnes i telefonens filvisning eller i en forhåndsvisning. Åbn filen i en browser som Safari, Chrome eller Firefox i stedet.</div>
+  <div class="nojs" id="nojs">Denne visning kører ikke JavaScript, så Ψ-reader kan ikke starte. Det sker typisk, når en HTML-fil åbnes i telefonens filvisning eller i en forhåndsvisning. Åbn filen i en browser som Safari, Chrome eller Firefox i stedet.</div>
 
   <section class="intake">
     <h1>Hvad vil du læse?</h1>
@@ -378,10 +388,6 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
     </div>
   </section>
 
-  <footer class="foot">
-    <button class="textbtn" id="goProgram" title="Seks trin på ca. 11 minutter: mål din hastighed, træn med pacer og indrykning i højt tempo, og mål igen. Bygget over Tim Ferriss' PX-protokol.">Træningsprogram</button>
-    <button class="textbtn" data-open="dlgCredits">Credits</button>
-  </footer>
 </main>
 
 <!-- ================= READER ================= -->
@@ -641,7 +647,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
 <dialog id="dlgCredits">
   <div class="dlg">
     <h2>Credits</h2>
-    <p><b>reader</b> er lavet af Julian Kyhl og Claude, 2026.</p>
+    <p><b>Ψ-reader</b> (Psy-reader) er lavet af Julian Kyhl og Claude, 2026.</p>
     <p>Freeware: må bruges, kopieres og deles gratis.</p>
     <p class="muted" style="font-size:14px">PDF-læsning med pdf.js fra Mozilla (Apache 2.0-licens). Ordbogsopslag via Free Dictionary API med data fra Wiktionary (CC BY-SA). Kilderne til eksempelteksten står under Om teknikkerne.</p>
     <p class="muted" style="font-size:14px">Hent filen eller se koden: <a href="https://github.com/DAKI2501/reader" target="_blank" rel="noopener">github.com/DAKI2501/reader</a></p>
@@ -740,6 +746,11 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
       <li>Dehaene, S. m.fl. (2010). How learning to read changes the cortical networks for vision and language. <i>Science, 330</i>, 1359–1364. <a href="https://doi.org/10.1126/science.1194140" target="_blank" rel="noopener">doi.org/10.1126/science.1194140</a></li>
       <li>Seymour, P. H. K., Aro, M. &amp; Erskine, J. M. (2003). Foundation literacy acquisition in European orthographies. <i>British Journal of Psychology, 94</i>, 143–174. <a href="https://doi.org/10.1348/000712603321661859" target="_blank" rel="noopener">doi.org/10.1348/000712603321661859</a></li>
       <li>Brysbaert, M., Stevens, M., Mandera, P. &amp; Keuleers, E. (2016). How many words do we know? <i>Frontiers in Psychology, 7</i>, 1116. <a href="https://doi.org/10.3389/fpsyg.2016.01116" target="_blank" rel="noopener">doi.org/10.3389/fpsyg.2016.01116</a></li>
+      <li>Stroop, J. R. (1935). Studies of interference in serial verbal reactions. <i>Journal of Experimental Psychology, 18</i>, 643–662. <a href="https://doi.org/10.1037/h0054651" target="_blank" rel="noopener">doi.org/10.1037/h0054651</a></li>
+      <li>McCutchen, D. &amp; Perfetti, C. A. (1982). The visual tongue-twister effect: Phonological activation in silent reading. <i>Journal of Verbal Learning and Verbal Behavior, 21</i>, 672–687.</li>
+      <li>Kutas, M. &amp; Hillyard, S. A. (1980). Reading senseless sentences: Brain potentials reflect semantic incongruity. <i>Science, 207</i>, 203–205. <a href="https://doi.org/10.1126/science.7350657" target="_blank" rel="noopener">doi.org/10.1126/science.7350657</a></li>
+      <li>Smith, N. J. &amp; Levy, R. (2013). The effect of word predictability on reading time is logarithmic. <i>Cognition, 128</i>, 302–319. <a href="https://doi.org/10.1016/j.cognition.2013.02.013" target="_blank" rel="noopener">doi.org/10.1016/j.cognition.2013.02.013</a></li>
+      <li>Vaswani, A. m.fl. (2017). Attention is all you need. <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">arxiv.org/abs/1706.03762</a></li>
       <li>Saenger, P. (1997). <i>Space Between Words: The Origins of Silent Reading</i>. Stanford University Press.</li>
       <li>Den Store Danske: Retskrivningsreformen i 1948. <a href="https://lex.dk/retskrivningsreformen_i_1948" target="_blank" rel="noopener">lex.dk</a></li>
     </ul>
@@ -1815,6 +1826,11 @@ function showRsvp(u) {
 }
 
 /* ================= session ================= */
+let wake = null;
+async function wakeOn() {
+  try { if ('wakeLock' in navigator && !wake) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch (e) {}
+}
+function wakeOff() { if (wake) { try { wake.release().catch(() => {}); } catch (e) {} wake = null; } }
 function newSession() {
   S.session = { startPos: S.pos, playMs: 0, words: 0, wpmMs: 0, limit: cfg('timer') * 60000, mode: cfg('mode'), compressed: !!S.map, origStart: origPos(S.pos) };
 }
@@ -1824,6 +1840,7 @@ function play() {
   if (!S.unit) setUnit();
   hideDefPop(); hideLookChip();
   S.playing = true; S.last = performance.now(); S.sy = null;
+  wakeOn();
   document.body.classList.add('playing');
   if (cfg('mode') === 'free') scrollToPos(false);
   idleKick();
@@ -1832,6 +1849,7 @@ function play() {
 function pause() {
   if (!S.playing) return;
   S.playing = false;
+  wakeOff();
   document.body.classList.remove('playing', 'idle');
   E.bar.classList.remove('quiet');
   resetSmooth();
@@ -1863,6 +1881,7 @@ function finish(reason) {
   const ses = S.session;
   if (!ses) return;
   S.playing = false;
+  wakeOff();
   document.body.classList.remove('playing', 'idle');
   E.bar.classList.remove('quiet');
   resetSmooth();
@@ -2440,7 +2459,9 @@ E.dlgSchulte.addEventListener('close', () => cancelAnimationFrame(sch.raf));
 /* ================= sample text ================= */
 const SAMPLE = `Øjne, bogstaver og det mærkelige ved at læse
 
-Lige nu gør du noget, som intet andet dyr kan, og som din hjerne aldrig er blevet bygget til. Skrift er kun omkring 5.000 år gammel. Det er et øjeblik i evolutionens tid, alt for kort til, at der kan være opstået et særligt læseorgan i hjernen. Alligevel omsætter du i dette sekund små sorte kruseduller til stemmer, billeder og tanker, så hurtigt og så automatisk, at du ikke kan lade være. Prøv at kigge på et ord uden at læse det. Det kan ikke lade sig gøre.
+Lige nu gør du noget, som intet andet dyr kan, og som din hjerne aldrig er blevet bygget til. Skrift er kun omkring 5.000 år gammel. Det er et øjeblik i evolutionens tid, alt for kort til, at der kan være opstået et særligt læseorgan i hjernen. Alligevel omsætter du i dette sekund små sorte kruseduller til stemmer, billeder og tanker, så hurtigt og så automatisk, at du ikke kan lade være.
+
+Det sidste kan man måle. I 1935 bad psykologen John Ridley Stroop folk om at sige, hvilken farve en række ord var trykt med. Når ordet RØD var trykt med blåt blæk, gik det langsommere, og folk lavede flere fejl. De kunne ikke lade være med at læse ordet, selv om opgaven kun handlede om farven. Stroop-effekten er siden blevet et af psykologiens mest gentagne fund: Hos en øvet læser er læsning ikke noget, man beslutter sig for. Det sker bare.
 
 Øjnene hopper
 
@@ -2450,39 +2471,61 @@ Det mærkelige er, at du aldrig ser dine egne spring. Under en saccade dæmper h
 
 Det skarpe syn dækker kun et lille område midt på nethinden, synsgruben. Strakt ud i armslængde svarer det nogenlunde til din tommelfingernegl. Alt uden for det er sløret, og alligevel oplever du verden som skarp og stabil. Det er en konstruktion. Hjernen syr de små skarpe udsnit sammen til et billede, der føles komplet. Hvert øje har endda en blind plet, hvor synsnerven forlader nethinden, og hvor der slet ingen synsceller er. Du har aldrig lagt mærke til den, fordi hjernen fylder hullet ud med et kvalificeret gæt.
 
-Øjnene er heller aldrig helt i ro. Selv når du stirrer stift på et punkt, ryster de i bittesmå bevægelser. Forskere har fundet måder at holde et billede helt stille på nethinden, så det følger med alle øjets bevægelser. Så falmer billedet bort og forsvinder. Synet er bygget til forandring, ikke til stilstand.
-
 Det, du ikke ser, når du læser
 
-Til højre for det punkt, du fikserer på, kan du typisk opfatte fjorten til femten bogstaver, til venstre kun tre til fire. Feltet er skævt, fordi opmærksomheden løber foran i læseretningen. Hos læsere af hebraisk, der læses fra højre mod venstre, vender skævheden den anden vej. Resten af linjen er sløret, men ikke uden betydning: Hjernen bruger den uskarpe forhåndsvisning til at planlægge, hvor næste ryk skal lande.
+Til højre for det punkt, du fikserer på, kan du typisk opfatte fjorten til femten bogstaver, til venstre kun tre til fire. Feltet er skævt, fordi opmærksomheden løber foran i læseretningen. Hos læsere af hebraisk, der læses fra højre mod venstre, vender skævheden den anden vej.
 
 Det ved vi blandt andet fra nogle snedige forsøg fra 1970'erne. Forskerne målte præcist, hvor læseren kiggede, og erstattede alle bogstaver uden for et lille vindue omkring blikket med x'er. Vinduet flyttede sig med øjnene, så teksten altid så normal ud lige der, hvor læseren kiggede. Når vinduet var stort nok, læste folk med normal hastighed, og mange opdagede ikke engang, at resten af linjen var fyldt med x'er. Det, du oplever som en hel side tekst, er i virkeligheden en række små, skarpe kighuller.
 
-Du læser heller ikke alle ord. Korte, hyppige småord springes ofte helt over, fordi hjernen allerede har gættet dem ud fra forhåndsvisningen og sammenhængen. Ind imellem springer øjnene også tilbage. Det kaldes regressioner, og de udgør omkring hver tiende øjenbevægelse hos en øvet læser. Mange hurtiglæsningskurser kalder dem spild, men forskningen peger på, at de ofte opstår, når forståelsen halter, og at de hjælper dig med at rette op.
+Du læser heller ikke alle ord. Korte, hyppige småord springes ofte helt over, fordi hjernen allerede har gættet dem. Ind imellem springer øjnene også tilbage. Det kaldes regressioner, og de udgør omkring hver tiende øjenbevægelse hos en øvet læser. Mange hurtiglæsningskurser kalder dem spild, men forskningen peger på, at de ofte opstår, når forståelsen halter, og at de hjælper dig med at rette op.
 
 Bogstaver i rod
 
-Måske har du set beskeden, der gik verden rundt på internettet: Ifølge forskning fra Cambridge betyder det ikke noget, hvilken rækkefølge bogstaverne står i, bare det første og det sidste bogstav er på plads. Der lå aldrig nogen sådan undersøgelse fra Cambridge bag. Men en rigtig undersøgelse kom senere, fra University of Massachusetts i 2006. Den viste, at man godt kan læse tekst med byttede bogstaver, men at det koster. Byttes bogstaver inde i ordene, falder læsehastigheden med omkring 11 procent. Byttes de sidste bogstaver, falder den med 26 procent, og byttes de første, med 36 procent. Ordets begyndelse er altså det vigtigste, og det passer med, at blikket helst lander lidt til venstre for ordets midte.
+Måske har du set beskeden, der gik verden rundt på internettet: Ifølge forskning fra Cambridge betyder det ikke noget, hvilken rækkefølge bogstaverne står i, bare det første og det sidste bogstav er på plads. Der lå aldrig nogen sådan undersøgelse fra Cambridge bag. Men en rigtig undersøgelse kom senere, fra University of Massachusetts i 2006. Den viste, at man godt kan læse tekst med byttede bogstaver, men at det koster. Byttes bogstaver inde i ordene, falder læsehastigheden med omkring 11 procent. Byttes de sidste bogstaver, falder den med 26 procent, og byttes de første, med 36 procent. Ordets begyndelse er altså det vigtigste.
 
 Et andet mærkeligt fund er, at et bogstav er lettere at genkende, når det står i et ord, end når det står alene. Allerede i 1969 viste forsøg, at folk lettere kunne afgøre, om de havde set et D eller et K, når bogstavet blinkede kort op som slutningen på et ord som WORD eller WORK, end når det blinkede op helt alene. Ordet hjælper bogstavet, ikke kun omvendt. Læsning er ikke bogstavering i høj fart. Det er mønstergenkendelse på flere niveauer på én gang.
+
+Stemmen i hovedet
+
+Læs den her sætning helt stille, kun med øjnene: Fem flade flødeboller på et fladt flødebollefad. Og den her: Bispens gipsgebis. Stativ, stakit, kasket.
+
+Mærkede du, at det gik en anelse langsommere, selv om du ikke sagde en lyd? Det er ikke indbildning. I 1982 viste psykologerne Deborah McCutchen og Charles Perfetti, at folk er længere tid om at læse sætninger stille, når mange af ordene begynder med de samme lyde. Tungen snubler altså, selv når den ligger helt stille. Effekten er siden fundet hos kinesiske læsere, hvis skrifttegn ikke er bygget af lyde, og hos læsere, der er født døve.
+
+Det fortæller noget vigtigt: Når du læser, bliver ordenes lyd vakt til live i hjernen, også når du er tavs. Den indre stemme er ikke en dårlig vane fra første klasse. Den holder ordene fast i arbejdshukommelsen længe nok til, at sætningen kan samles til mening. Derfor falder forståelsen, når man prøver at slukke for den.
+
+Skriften kan til gengæld noget, stemmen ikke kan. Ordet angstskrig læser du på et øjeblik, selv om seks konsonantlyde står i kø midt i ordet. Og prøv den her: Hvem ved, hvad hver hvid hval vil? På papiret står der fem h'er, som ingen dansker udtaler. Øjet ser forskel på vejr, hver, vær og værd. Øret gør næsten ikke.
+
+Hjernen gætter forud
+
+Læs den her sætning: Han smurte det varme brød med smør og sokker.
+
+Ved det sidste ord skete der noget i din hjerne. I 1980 målte Marta Kutas og Steven Hillyard hjernens elektriske aktivitet, mens folk læste sætninger, der sluttede med et ord, som ikke gav mening. Omkring 400 millisekunder efter det uventede ord kom der et tydeligt udsving, som de kaldte N400. Det kommer hver gang, et ord bryder med det, hjernen havde regnet med, og det er større, jo mere uventet ordet er.
+
+Du læser altså ikke ét ord ad gangen og venter på det næste. Du gætter hele tiden forud. Forudsigelige ord læses hurtigere eller springes helt over, og uventede ord får længere fiksationer. Sommetider må gættet laves om. I sætningen »Hun så manden med kikkerten« vælger du lynhurtigt, hvem der har kikkerten, og du opdager først valget, hvis næste sætning viser, at det var forkert.
+
+Sådan læser en sprogmodel
+
+Der er kommet en ny slags læser i verden, og den læser helt anderledes end dig. En sprogmodel har ingen øjne, ingen synsgrube og ingen saccader. Teksten bliver først hakket i små stykker, kaldet tokens. Et almindeligt ord kan være ét token, mens et langt eller sjældent ord bliver til flere stumper. Hvert token laves om til en lang række tal.
+
+Derefter sker det, der adskiller modellen mest fra dig: Den ser på alle stykkerne på én gang. Hvor dit blik må hoppe hen ad linjen, vejer modellen hvert token mod alle de andre i teksten samtidig og finder ud af, hvilke der hører sammen. Mekanismen hedder opmærksomhed, attention, og blev beskrevet i 2017 i en artikel med den selvsikre titel Attention Is All You Need. Modellen har ingen indre stemme og ingen tunge, der kan snuble. Den ved, at Bispens gipsgebis er en tungebrækker, fordi den har læst om det, ikke fordi den mærker det.
+
+Og alligevel ligner den dig på et afgørende punkt. En sprogmodel er trænet på én opgave, gentaget et ufatteligt antal gange: at gætte, hvad der kommer som det næste. Præcis som din hjerne gør, når du læser. Ligheden er så stor, at læseforskere bruger sprogmodeller som måleinstrument. Jo mere overrasket en model bliver over et ord, jo længere tid bruger mennesker på at læse det. En undersøgelse fra 2013 fandt, at sammenhængen holder over et enormt spænd, fra de mest forventede ord til de næsten umulige.
+
+Denne tekst er i øvrigt skrevet af et menneske og en sprogmodel i fællesskab. Den ene af os har aldrig set et bogstav.
 
 Hjernen låner plads
 
 Hvis der ikke er noget læseorgan, hvordan kan vi så læse? Den franske neuroforsker Stanislas Dehaene har foreslået, at læsning genbruger hjerneområder, der oprindeligt udviklede sig til at genkende ting og ansigter. Hos læsere i alle de kulturer, der er undersøgt, aktiveres et lille område i venstre hjernehalvdel, når de ser skrevne ord, og det sker næsten samme sted, uanset om skriften er dansk, kinesisk eller hebraisk.
 
-I et forsøg fra 2010 skannede Dehaene og kolleger hjernen hos 63 voksne: ti, der aldrig havde lært at læse, 22, der først lærte det som voksne, og 31, der lærte det som børn. Jo bedre folk læste, jo kraftigere reagerede området i venstre hjernehalvdel på skrift. Samtidig fandt de tegn på en lille konkurrence med ansigtsgenkendelsen på samme sted. Det mest opmuntrende fund var, at de fleste forandringer også viste sig hos dem, der først lærte at læse som voksne. Hjernen kan altså omorganisere sig hele livet.
+I et forsøg fra 2010 skannede Dehaene og kolleger hjernen hos 63 voksne: ti, der aldrig havde lært at læse, 22, der først lærte det som voksne, og 31, der lærte det som børn. Jo bedre folk læste, jo kraftigere reagerede området på skrift. Samtidig fandt de tegn på en lille konkurrence med ansigtsgenkendelsen på samme sted. Det mest opmuntrende fund var, at de fleste forandringer også viste sig hos dem, der først lærte at læse som voksne. Hjernen kan omorganisere sig hele livet.
 
-Genbruget kan også forklare en ting, mange forældre har undret sig over: hvorfor børn skriver spejlvendte bogstaver. Vores synssystem er bygget til at se en ting som den samme, uanset om den vender mod venstre eller højre. En tiger er lige farlig fra begge sider. Men i skrift er b og d forskellige bogstaver, og det samme gælder p og q. Når man lærer at læse, skal hjernen aflære en ældgammel evne for netop de tegn.
-
-Læsning er også hårdt arbejde. Når du tænker koncentreret, for eksempel når en sætning er svær, udvider dine pupiller sig en smule. Psykologer har brugt det i årtier som et mål for mental anstrengelse.
+Genbruget kan også forklare, hvorfor børn skriver spejlvendte bogstaver. Vores synssystem er bygget til at se en ting som den samme, uanset om den vender mod venstre eller højre. En tiger er lige farlig fra begge sider. Men i skrift er b og d forskellige bogstaver, og det samme gælder p og q. Når man lærer at læse, skal hjernen aflære en ældgammel evne for netop de tegn.
 
 Fra okse til A
 
 Skriften er opfundet mindst tre gange uafhængigt af hinanden: i Mesopotamien for godt 5.000 år siden, i Kina og i Mellemamerika. De ældste tekster, vi kender fra Mesopotamien, er ikke digte eller love. Det er regnskaber over korn, øl og får. Skriften begyndte som bogføring.
 
-Alfabetet har en historie, der næsten er for god til at være sand. For omkring 3.800 år siden arbejdede semitisk-talende folk i egyptisk tjeneste, blandt andet i turkisminerne på Sinaihalvøen. De var omgivet af egyptiske hieroglyffer, et system med hundredvis af tegn, som det tog skrivere mange år at lære. De fik en genial idé: De tog nogle få billeder og lod hvert af dem stå for den første lyd i deres eget ord for tingen. Et oksehoved, på deres sprog alp, kom til at stå for lyden i begyndelsen af ordet. Et hus, bayt, blev til b. Fra de enkle tegn udviklede sig det fønikiske alfabet, siden det græske, der tilføjede vokaler, og så det latinske, som du læser lige nu. Vend et stort A på hovedet, og se efter: Du kan stadig ane et oksehoved med to horn.
-
-Ikke alle skrifter har givet deres hemmeligheder fra sig. Linear A fra Kreta og rongorongo fra Påskeøen er stadig ikke tydet. Og i det tidlige Grækenland skrev man nogle gange skiftevis fra venstre mod højre og fra højre mod venstre, linje for linje, som en okse der pløjer en mark. Man kaldte det boustrophedon, »som oksen vender«.
+Alfabetet har en historie, der næsten er for god til at være sand. For omkring 3.800 år siden arbejdede semitisk-talende folk i egyptisk tjeneste, blandt andet i turkisminerne på Sinaihalvøen. De var omgivet af egyptiske hieroglyffer, et system med hundredvis af tegn, som det tog skrivere mange år at lære. De fik en genial idé: De tog nogle få billeder og lod hvert af dem stå for den første lyd i deres eget ord for tingen. Et oksehoved, på deres sprog alp, kom til at stå for lyden i begyndelsen af ordet. Et hus, bayt, blev til b. Fra de enkle tegn udviklede sig det fønikiske alfabet, siden det græske, der tilføjede vokaler, og så det latinske, som du læser lige nu. Vend et stort A på hovedet, og se efter: Du kan stadig ane et oksehoved med to horn. Det græske bogstav psi, Ψ, kom til senere og blev mange århundreder efter psykologiens kendetegn, fordi det er første bogstav i psyche, sjæl.
 
 Mellemrummet, en opfindelse
 
@@ -2490,7 +2533,7 @@ Det mest oversete tegn i denne tekst er mellemrummet. Romerne og grækerne skrev
 
 Omkring år 400 beskrev kirkefaderen Augustin, hvordan han så biskop Ambrosius læse: Øjnene gled over siden, men stemmen var stille. Augustin fandt det så påfaldende, at han skrev det ned. Forskere diskuterer i dag, hvor sjælden stillelæsning egentlig var i oldtiden, men historien viser, at læsning engang først og fremmest var noget, man gjorde højt.
 
-Hvor vigtigt mellemrummet er, kan man stadig måle. Når forskere fjerner mellemrummene fra en engelsk tekst, falder læsehastigheden med 40 til 50 procent. Kinesiske og japanske læsere klarer sig derimod fint uden mellemrum, fordi deres skrift er bygget anderledes. Hjernen tilpasser sig det system, den vokser op med.
+Hvor vigtigt mellemrummet er, kan man stadig måle. Når forskere fjerner mellemrummene fra en engelsk tekst, falder læsehastigheden med 40 til 50 procent. Kinesiske og japanske læsere klarer sig derimod fint uden, fordi deres skrift er bygget anderledes. Hjernen tilpasser sig det system, den vokser op med.
 
 Dansk er svært at lære at læse
 
@@ -2498,19 +2541,13 @@ En stor undersøgelse fra 2003 sammenlignede, hvor hurtigt børn lærer grundlæ
 
 Det danske skriftsprog har også ændret sig inden for mange menneskers levetid. Indtil 1948 skrev man alle navneord med stort begyndelsesbogstav, ligesom på tysk, og bolle-å'et fandtes ikke; man skrev aa. Retskrivningsreformen det år afskaffede de store bogstaver og indførte å. Ikke alle var begejstrede. Aalborg gik aldrig over til å, og Aarhus vendte tilbage til dobbelt-a i 2011.
 
-Et ordforråd til et helt liv
-
-Hvor mange ord kender du? Et forskerhold fra Gent anslog i 2016, at en gennemsnitlig 20-årig med engelsk som modersmål kender omkring 42.000 grundord, med et spænd fra omkring 27.000 til 52.000 mellem de laveste og de højeste fem procent. Og vi bliver ved med at lære: Mellem 20 og 60 år lærer man i gennemsnit et nyt ord hver anden dag.
-
-Det hænger direkte sammen med læsehastighed. Jo flere gange du har mødt et ord, jo hurtigere genkender du det, og jo mere du ved om et emne, jo lettere glider teksten. Derfor er den mest pålidelige vej til hurtigere læsning paradoksalt nok den langsomste: at læse meget.
-
 Hvad kan træning så gøre?
 
-En pacer, altså en finger, en pen eller en bevægelig markering på skærmen, giver øjnene et fast punkt at følge. Den holder et jævnt tempo og gør det sværere at falde i staver eller springe tilbage uden grund. Tim Ferriss lod i sit PX-projekt deltagerne træne med en pen under linjen, først for teknikkens skyld og derefter i et tempo langt over det behagelige. Perceptuel udvidelse bygger på samme idé: Du begynder et ord inde, stopper et ord før enden og lader synsfeltets periferi tage sig af margenerne.
+Hvor mange ord kender du? Et forskerhold fra Gent anslog i 2016, at en gennemsnitlig 20-årig med engelsk som modersmål kender omkring 42.000 grundord, og at man mellem 20 og 60 år lærer et nyt ord hver anden dag. Det hænger direkte sammen med læsehastighed. Jo flere gange du har mødt et ord, jo hurtigere genkender du det, og jo mere du ved om et emne, jo bedre gætter du forud. Derfor er den mest pålidelige vej til hurtigere læsning paradoksalt nok den langsomste: at læse meget.
 
-Den grundige gennemgang, som Keith Rayner og kolleger udgav i 2016, konkluderer, at der er en afvejning mellem fart og forståelse. Det er ikke realistisk at fordoble eller tredoble sin hastighed og samtidig forstå lige så meget. Til gengæld kan træning gøre dig bedre til bevidst at skifte gear: at skimme, når du skal have overblik, og at sætte farten ned, når teksten er svær. Brug øvelserne her som træning af rytme og opmærksomhed, og tjek altid, hvad du faktisk husker bagefter.
+Den grundige gennemgang, som Keith Rayner og kolleger udgav i 2016, konkluderer, at der er en afvejning mellem fart og forståelse. Det er ikke realistisk at fordoble eller tredoble sin hastighed og samtidig forstå lige så meget. Til gengæld kan træning gøre dig bedre til bevidst at skifte gear: at skimme, når du skal have overblik, og at sætte farten ned, når teksten er svær. En pacer, altså en finger, en pen eller en markering på skærmen, giver øjnene et fast punkt at følge og holder et jævnt tempo. Brug øvelserne her som træning af rytme og opmærksomhed, og tjek altid, hvad du faktisk husker bagefter.
 
-Næste gang du læser, så læg et øjeblik mærke til det umulige, der sker. Et væsen, hvis hjerne udviklede sig til at spore dyr og genkende ansigter, sidder og omsætter blæk til mening, tre spring i sekundet, uden at se et eneste af springene. Vil du vide mere, er Stanislas Dehaenes bog Reading in the Brain og Paul Saengers Space Between Words gode steder at begynde.`;
+Næste gang du læser, så læg et øjeblik mærke til det umulige, der sker. Et væsen, hvis hjerne udviklede sig til at spore dyr og genkende ansigter, sidder og omsætter blæk til mening, tre spring i sekundet, med en tavs stemme i hovedet og et gæt på næste ord, uden at se et eneste af springene. Vil du vide mere, er Stanislas Dehaenes bog Reading in the Brain og Paul Saengers Space Between Words gode steder at begynde.`;
 
 const SAMPLE_TITLE = 'Øjne, bogstaver og det mærkelige ved at læse';
 const SAMPLE_WORDS = (SAMPLE.match(/\S+/g) || []).length;
@@ -2520,6 +2557,13 @@ E.input.placeholder = SAMPLE;
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   try { navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
 }
+
+E.menuBtn = document.getElementById('menuBtn'); E.menu = document.getElementById('menu');
+function setMenu(open) { E.menu.hidden = !open; E.menuBtn.setAttribute('aria-expanded', String(open)); }
+E.menuBtn.addEventListener('click', e => { e.stopPropagation(); setMenu(E.menu.hidden); });
+E.menu.addEventListener('click', () => setMenu(false));
+document.addEventListener('click', e => { if (!E.menu.hidden && !E.menu.contains(e.target)) setMenu(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
 
 /* ================= boot ================= */
 { const h = store.get('history', []).filter(r => r.mode === 'free' || r.mode === 'test'); if (h.length) S.freeWpm = h[h.length - 1].wpm; }

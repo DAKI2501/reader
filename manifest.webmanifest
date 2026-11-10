@@ -1,6 +1,6 @@
 {
-  "name": "reader – træn hurtiglæsning",
-  "short_name": "reader",
+  "name": "Psy-reader – træn hurtiglæsning",
+  "short_name": "Ψ-reader",
   "description": "Træn hurtiglæsning med pacer, fikspunkter, fraser, RSVP og jævn rulning. Læser tekst, PDF og EPUB.",
   "lang": "da",
   "start_url": "./",
