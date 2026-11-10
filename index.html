@@ -11,6 +11,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#ECEEEA">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="reader">
 <title>reader – træn hurtiglæsning</title>
 <style>
 :root{
@@ -638,6 +644,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
     <p><b>reader</b> er lavet af Julian Kyhl og Claude, 2026.</p>
     <p>Freeware: må bruges, kopieres og deles gratis.</p>
     <p class="muted" style="font-size:14px">PDF-læsning med pdf.js fra Mozilla (Apache 2.0-licens). Ordbogsopslag via Free Dictionary API med data fra Wiktionary (CC BY-SA). Kilderne til eksempelteksten står under Om teknikkerne.</p>
+    <p class="muted" style="font-size:14px">Hent filen eller se koden: <a href="https://github.com/DAKI2501/reader" target="_blank" rel="noopener">github.com/DAKI2501/reader</a></p>
     <div class="actions"><button class="primary" data-close>Luk</button></div>
   </div>
 </dialog>
@@ -2508,6 +2515,11 @@ Næste gang du læser, så læg et øjeblik mærke til det umulige, der sker. Et
 const SAMPLE_TITLE = 'Øjne, bogstaver og det mærkelige ved at læse';
 const SAMPLE_WORDS = (SAMPLE.match(/\S+/g) || []).length;
 E.input.placeholder = SAMPLE;
+
+/* ================= offline app (only where the page is served over https with sw.js beside it) ================= */
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  try { navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
+}
 
 /* ================= boot ================= */
 { const h = store.get('history', []).filter(r => r.mode === 'free' || r.mode === 'test'); if (h.length) S.freeWpm = h[h.length - 1].wpm; }

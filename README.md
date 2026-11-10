@@ -4,6 +4,10 @@ En hurtiglæsningstræner i én enkelt HTML-fil. Den kører i browseren, også u
 
 **Åbn den her:** https://daki2501.github.io/reader/
 
+På telefonen kan den lægges på hjemmeskærmen (iPhone: Safari → Del → Føj til hjemmeskærm). Efter første åbning virker den også uden internet; kun ordbogsopslag kræver net.
+
+**Hent filen:** Hele appen er filen [`index.html`](index.html). Download den, og åbn den i en browser på computeren eller på Android (Chrome). På iPhone skal den åbnes via adressen ovenfor.
+
 ## Hvad den kan
 
 - **Teknikker:** pacer med pen og indrykning, fikspunkter med lodrette streger, fraser, RSVP og fri læsning med måling af din hastighed.
