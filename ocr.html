@@ -1,0 +1,264 @@
+<!doctype html>
+<!--
+  Ψ-OCR – tekstgenkendelse til Ψ-reader
+  Lavet af DAKI2501 og Claude (Anthropic), 2026. Freeware.
+  Bygger på Tesseract (tesseract.js), pdf.js, pdf-lib og UTIF.js. Licenser: ocr/LICENSES.txt
+-->
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ECEEEA">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="description" content="Ψ-OCR: gør scannede sider, fotos og PDF'er til tekst på dansk og engelsk. Retter skæve og vendte sider, deler opslag og laver søgbar PDF, e-bog eller tekst til Ψ-reader. Kører i browseren.">
+<title>Ψ-OCR – tekstgenkendelse</title>
+<style>
+:root{
+  --paper:#ECEEEA; --ink:#1C2126; --muted:#66706B; --faint:#A7AEA9; --rule:#D2D7D1; --panel:#F5F6F3;
+  --accent:#2C45CF; --accent-soft:rgba(44,69,207,.12); --accent-ink:#fff;
+  --serif:Charter,"Bitstream Charter","Sitka Text","Iowan Old Style",Cambria,Georgia,serif;
+  --sans:"Avenir Next","Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+[data-theme=sepia]{--paper:#F0E8D8; --ink:#33291F; --muted:#7A6B59; --faint:#B5A792; --rule:#DCD0BA; --panel:#F6F0E4}
+[data-theme=night]{--paper:#161A1E; --ink:#D5DAD4; --muted:#89928D; --faint:#545C58; --rule:#293036; --panel:#1C2126; --accent:#8C9DFF; --accent-soft:rgba(140,157,255,.16); --accent-ink:#0E1220}
+*{box-sizing:border-box}
+html{background:var(--paper)}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 var(--sans);-webkit-font-smoothing:antialiased}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+[hidden]{display:none!important}
+a{color:var(--accent)}
+.grow{flex:1}
+.primary{background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:10px 18px;font-weight:600}
+.primary:disabled{opacity:.35;cursor:default}
+.ghost{background:transparent;border:1px solid var(--rule);border-radius:8px;padding:9px 15px;text-decoration:none;color:inherit;display:inline-block}
+.ghost:hover{border-color:var(--faint)}
+.ghost:disabled{opacity:.4;cursor:default}
+.textbtn{background:none;border:0;padding:7px 10px;border-radius:7px;color:var(--muted);white-space:nowrap}
+.textbtn:hover{color:var(--ink);background:var(--accent-soft)}
+.icon{width:34px;height:34px;border-radius:8px;border:0;background:transparent;display:inline-grid;place-items:center;color:var(--muted);flex:none}
+.icon:hover{color:var(--ink);background:var(--accent-soft)}
+.seg{display:inline-flex;gap:2px;background:var(--paper);border-radius:8px;padding:2px;box-shadow:inset 0 0 0 1px var(--rule)}
+.seg button{border:0;background:transparent;padding:6px 11px;border-radius:6px;font-size:14px;color:var(--muted);white-space:nowrap}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
+.seg button:disabled{cursor:default}
+input[type=checkbox].switch{appearance:none;-webkit-appearance:none;width:36px;height:20px;border-radius:10px;background:var(--rule);position:relative;cursor:pointer;transition:background .15s;flex:none;margin:0}
+input[type=checkbox].switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--paper);transition:transform .15s}
+input[type=checkbox].switch:checked{background:var(--accent)}
+input[type=checkbox].switch:checked::after{transform:translateX(16px)}
+select{border:1px solid var(--rule);border-radius:7px;background:var(--panel);padding:6px 8px}
+
+/* ---------- page ---------- */
+.wrap{max-width:900px;margin:0 auto;padding:26px 24px 150px}
+.top{display:flex;align-items:center;gap:16px}
+.mark{font:italic 600 23px/1 var(--serif);position:relative;padding-bottom:7px;letter-spacing:.005em}
+.mark::after{content:"";position:absolute;left:.05em;bottom:0;height:3px;width:1.7em;border-radius:2px;background:var(--accent)}
+.top .back{margin-left:auto;font-size:14px}
+.intro{margin-top:7vh}
+.intro h1{font:500 clamp(30px,4.4vw,46px)/1.08 var(--serif);margin:0 0 10px;letter-spacing:-.012em}
+.intro .sub{color:var(--muted);margin:0 0 22px;font-size:16px;max-width:56ch}
+
+/* drop zone: a sheet of paper waiting for a scan */
+#drop{position:relative;border-radius:12px;background:var(--panel);box-shadow:inset 0 0 0 1px var(--rule);padding:30px 30px 26px;transition:box-shadow .15s,background .15s;overflow:hidden}
+#drop::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--accent);opacity:0;transform:translateY(-2px)}
+body.dragging #drop{box-shadow:inset 0 0 0 2px var(--accent);background:var(--accent-soft)}
+body.dragging #drop::before{opacity:.9;animation:scan 1.6s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes scan{from{transform:translateY(0)}to{transform:translateY(240px)}}
+#drop h2{font:500 25px/1.2 var(--serif);margin:0 0 6px}
+#drop .formats{color:var(--muted);margin:0 0 20px;max-width:60ch;line-height:1.55}
+.drop-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.file-btn{position:relative;overflow:hidden}
+.file-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.paste{color:var(--muted);font-size:14px}
+body.hasjob .intro{margin-top:28px}
+body.hasjob .intro h1,body.hasjob .intro .sub,body.hasjob #drop .formats{display:none}
+body.hasjob #drop{padding:18px 22px}
+body.hasjob #drop h2{font-size:19px;margin-bottom:12px}
+.notice{margin:14px 0 0;padding:12px 14px;border-radius:9px;background:var(--accent-soft);font-size:14px;line-height:1.5}
+
+.opts{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;margin-top:16px}
+.opts .lbl{color:var(--muted);font-size:14px}
+details.more{width:100%}
+details.more>summary{list-style:none;cursor:pointer;color:var(--muted);font-size:14px;display:inline-flex;align-items:center;gap:6px;padding:4px 0}
+details.more>summary::-webkit-details-marker{display:none}
+details.more>summary::before{content:"";width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-45deg);transition:transform .15s;margin-right:2px}
+details.more[open]>summary::before{transform:rotate(45deg)}
+details.more>summary:hover{color:var(--ink)}
+.set{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2px 28px;margin-top:8px}
+.set label{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--rule);font-size:14px}
+.set label span small{display:block;color:var(--muted);font-size:12.5px;margin-top:1px}
+.ready{color:var(--muted);font-size:13px;margin-left:auto}
+.credit{margin-top:56px;color:var(--muted);font-size:13px;line-height:1.55;max-width:70ch}
+.credit a{color:inherit}
+
+/* ---------- job ---------- */
+#job{margin-top:34px}
+.jobhead{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+#title{flex:1;min-width:220px;border:0;border-bottom:1px solid var(--rule);background:transparent;font:500 24px/1.25 var(--serif);padding:4px 0 6px;border-radius:0}
+#title:focus{outline:none;border-bottom-color:var(--accent)}
+.prog{margin-top:14px}
+.track{height:4px;border-radius:2px;background:var(--rule);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.progline{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;margin-top:9px;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+#status{margin-right:auto}
+#pages{list-style:none;margin:16px 0 0;padding:0;border-top:1px solid var(--rule)}
+#pages>li{border-bottom:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:62px 1fr auto;gap:16px;align-items:center;padding:12px 0}
+.thumb{width:62px;height:80px;border:0;padding:0;border-radius:4px;background:var(--panel);box-shadow:0 0 0 1px var(--rule);overflow:hidden;display:grid;place-items:center}
+.thumb img{width:100%;height:100%;object-fit:contain;background:#fff;display:block}
+.thumb:disabled{cursor:default}
+.row.work .thumb{background:linear-gradient(180deg,transparent 0,transparent 45%,var(--accent-soft) 50%,transparent 55%) 0 0/100% 200% var(--panel);animation:sweep 1.4s linear infinite}
+@keyframes sweep{from{background-position:0 100%}to{background-position:0 -100%}}
+.pmain{min-width:0}
+.ptitle{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.ptitle b{font:500 16px var(--serif)}
+.pmeta{color:var(--muted);font-size:13px}
+.pmeta.err{color:#B3261E}
+.pprev{margin:3px 0 0;color:var(--muted);font:14px/1.45 var(--serif);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.pact{display:flex;gap:2px}
+.row.off{opacity:.45}
+.row.off .pprev{text-decoration:line-through}
+
+#exportbar{position:fixed;left:0;right:0;bottom:0;background:var(--panel);box-shadow:0 -1px 0 var(--rule),0 -18px 40px -24px rgba(0,0,0,.25);padding:12px 24px calc(12px + env(safe-area-inset-bottom));z-index:5}
+#exportbar .in{max-width:900px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
+#exportbar .note{color:var(--muted);font-size:13px;margin-right:auto}
+
+/* ---------- page dialog ---------- */
+dialog{border:0;border-radius:14px;padding:0;background:var(--panel);color:var(--ink);box-shadow:0 30px 80px -20px rgba(0,0,0,.5);max-width:96vw}
+dialog::backdrop{background:rgba(20,24,28,.45)}
+#dlgPage{width:min(1180px,96vw);height:min(900px,92vh)}
+#dlgPage[open]{display:flex;flex-direction:column}
+.dh{display:flex;align-items:center;gap:8px;padding:12px 14px 12px 20px;border-bottom:1px solid var(--rule)}
+.dh h2{font:500 19px var(--serif);margin:0;margin-right:auto}
+.dbody{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr}
+.pimg{overflow:auto;background:var(--paper);border-right:1px solid var(--rule);display:block}
+.pimg img{display:block;width:100%;height:auto;background:#fff}
+.ped{overflow:auto;padding:22px 26px}
+#edit{font:17px/1.65 var(--serif);outline:none;min-height:60%}
+#edit p{margin:0 0 .9em}
+#edit p.h{font-weight:600;font-size:1.12em}
+#edit p.note{font-size:.88em;color:var(--muted)}
+#edit mark{background:none;color:inherit;text-decoration:underline wavy var(--accent) 1px;text-underline-offset:4px;text-decoration-skip-ink:none}
+.hf{color:var(--muted);font-size:13px;margin:0 0 14px;padding-left:10px;border-left:2px solid var(--rule)}
+.df{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 20px;border-top:1px solid var(--rule)}
+.df .hint{color:var(--muted);font-size:13px;margin-right:auto}
+
+#toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;z-index:50;font-size:14px;max-width:min(560px,90vw);box-shadow:0 16px 40px -12px rgba(0,0,0,.35)}
+
+@media (max-width:700px){
+  .wrap{padding:18px 16px 190px}
+  .intro{margin-top:4vh}
+  #drop{padding:22px 18px 20px}
+  .row{grid-template-columns:48px 1fr;gap:12px}
+  .thumb{width:48px;height:62px}
+  .pact{grid-column:2;justify-content:flex-start;margin-left:-8px}
+  .dbody{grid-template-columns:1fr;grid-template-rows:38% 62%}
+  .pimg{border-right:0;border-bottom:1px solid var(--rule)}
+  #exportbar{padding-left:16px;padding-right:16px}
+  #exportbar .note{width:100%}
+  .paste{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  body.dragging #drop::before,.row.work .thumb{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="mark">Ψ-OCR</div>
+    <a class="back textbtn" href="./" id="backLink">Til Ψ-reader</a>
+  </header>
+
+  <section class="intro">
+    <h1>Tekstgenkendelse</h1>
+    <p class="sub">Gør scannede sider og fotos af tekst til tekst, du kan læse i Ψ-reader, søge i og kopiere. Det hele sker i din browser; filerne forlader ikke din enhed.</p>
+
+    <div id="drop" tabindex="-1">
+      <h2 id="dropTitle">Slip scannede sider her</h2>
+      <p class="formats">PDF, billeder (JPG, PNG, TIFF, WebP, GIF, BMP, HEIC i Safari), ZIP- og CBZ-arkiver med sider, og Word- og OpenDocument-filer med indscannede billeder. Skæve, vendte og liggende sider rettes op, og opslag med to sider deles.</p>
+      <div class="drop-bar">
+        <label class="primary file-btn" id="pickLbl">Vælg filer<input type="file" id="pick" multiple></label>
+        <label class="ghost file-btn" id="camLbl" hidden>Tag billede<input type="file" id="cam" accept="image/*" capture="environment"></label>
+        <span class="paste">eller indsæt et skærmbillede med Ctrl+V</span>
+      </div>
+      <p class="notice" id="fileNotice" hidden>Tekstgenkendelse kræver, at siden åbnes fra en webadresse, ikke som en lokal fil. Brug <a href="https://daki2501.github.io/reader/ocr.html">daki2501.github.io/reader/ocr.html</a>.</p>
+    </div>
+
+    <div class="opts">
+      <span class="lbl">Sprog</span>
+      <div class="seg" id="lang" role="group" aria-label="Sprog">
+        <button data-v="dan+eng">Dansk og engelsk</button><button data-v="dan">Dansk</button><button data-v="eng">Engelsk</button>
+      </div>
+      <span class="ready" id="ready"></span>
+      <details class="more" id="more">
+        <summary>Indstillinger</summary>
+        <div class="set">
+          <label><span>Del opslag i to sider<small>Når to bogsider er scannet på én gang</small></span><input type="checkbox" class="switch" data-o="split"></label>
+          <label><span>Fjern sidetal og sidehoveder<small>Gentagne linjer øverst og nederst</small></span><input type="checkbox" class="switch" data-o="heads"></label>
+          <label><span>Saml orddeling ved linjeskift<small>erken- / delse bliver til erkendelse</small></span><input type="checkbox" class="switch" data-o="hyph"></label>
+          <label><span>Fodnoter<small>Små linjer nederst på siden</small></span><select data-o="notes"><option value="keep">Behold</option><option value="drop">Udelad</option></select></label>
+          <label><span>Genkend også PDF-sider med tekst<small>Når PDF'ens egen tekst er forkert</small></span><input type="checkbox" class="switch" data-o="forceText"></label>
+          <label><span>Billeder i søgbar PDF<small>Højere kvalitet giver større fil</small></span><select data-o="dpi"><option value="150">Små (150 dpi)</option><option value="200">Gode (200 dpi)</option><option value="300">Skarpe (300 dpi)</option></select></label>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section id="job" hidden>
+    <div class="jobhead">
+      <input id="title" aria-label="Titel" placeholder="Titel" spellcheck="false">
+      <button class="textbtn" id="clear">Ryd</button>
+    </div>
+    <div class="prog">
+      <div class="track"><i id="bar"></i></div>
+      <div class="progline">
+        <span id="status"></span>
+        <button class="textbtn" id="relang" hidden></button>
+        <button class="textbtn" id="pause" hidden>Sæt på pause</button>
+      </div>
+    </div>
+    <ol id="pages"></ol>
+  </section>
+  <footer class="credit">Ψ-OCR er lavet af DAKI2501 og Claude, 2026, og er freeware. Tekstgenkendelsen er <a href="https://github.com/tesseract-ocr/tesseract">Tesseract</a> via tesseract.js; PDF'er læses med pdf.js og skrives med pdf-lib, TIFF med UTIF.js. <a href="ocr/LICENSES.txt">Licenser</a>.</footer>
+</div>
+
+<div id="exportbar" hidden>
+  <div class="in">
+    <span class="note" id="expNote"></span>
+    <button class="primary" id="toReader">Læs i Ψ-reader</button>
+    <button class="ghost" id="dlPdf">Søgbar PDF</button>
+    <button class="ghost" id="dlEpub">E-bog</button>
+    <button class="ghost" id="dlTxt">Tekst</button>
+    <button class="textbtn" id="copy">Kopiér</button>
+  </div>
+</div>
+
+<dialog id="dlgPage" aria-labelledby="dlgTitle">
+  <div class="dh">
+    <h2 id="dlgTitle">Side</h2>
+    <button class="icon" id="rotL" aria-label="Drej siden mod venstre og genkend igen" title="Drej mod venstre"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M8 5H4v4M4.5 8.5A8 8 0 1 1 6 17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="icon" id="rotR" aria-label="Drej siden mod højre og genkend igen" title="Drej mod højre"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M16 5h4v4M19.5 8.5A8 8 0 1 0 18 17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="icon" id="prevPg" aria-label="Forrige side" title="Forrige side"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="icon" id="nextPg" aria-label="Næste side" title="Næste side"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="icon" id="closePg" aria-label="Luk" title="Luk"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+  </div>
+  <div class="dbody">
+    <div class="pimg" id="pimg"></div>
+    <div class="ped"><div id="hfTop"></div><div id="edit" contenteditable="true" spellcheck="true" lang="da"></div><div id="hfBot"></div></div>
+  </div>
+  <div class="df">
+    <span class="hint" id="editHint">Usikre ord er understreget. Ret direkte i teksten.</span>
+    <button class="textbtn" id="resetEdit" hidden>Brug genkendt tekst</button>
+    <button class="primary" id="saveEdit" disabled>Gem rettelser</button>
+  </div>
+</dialog>
+
+<div id="toast" role="status" hidden></div>
+<script src="ocr/app.js"></script>
+</body>
+</html>

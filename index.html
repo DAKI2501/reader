@@ -209,8 +209,45 @@ body[data-eta=off] .eta{display:none}
 #toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;z-index:50;font-size:14px;max-width:min(560px,90vw);box-shadow:0 16px 40px -12px rgba(0,0,0,.35)}
 
 /* ---------- settings ---------- */
-#settings{position:fixed;top:0;right:0;bottom:0;width:min(370px,100vw);background:var(--panel);box-shadow:-1px 0 0 var(--rule),-30px 0 60px -34px rgba(0,0,0,.35);transform:translateX(105%);visibility:hidden;transition:transform .24s ease,visibility 0s linear .24s;z-index:20;overflow:auto;padding:16px 22px 40px}
-#settings.open{transform:none;visibility:visible;transition:transform .24s ease,visibility 0s}
+#settings,#notes{position:fixed;top:0;right:0;bottom:0;width:min(370px,100vw);background:var(--panel);box-shadow:-1px 0 0 var(--rule),-30px 0 60px -34px rgba(0,0,0,.35);transform:translateX(105%);visibility:hidden;transition:transform .24s ease,visibility 0s linear .24s;z-index:20;overflow:auto;padding:16px 22px 40px}
+#settings.open,#notes.open{transform:none;visibility:visible;transition:transform .24s ease,visibility 0s}
+#notes{display:flex;flex-direction:column;gap:10px}
+.nq{font:italic 14px/1.5 var(--serif);color:var(--muted);border-left:2px solid var(--accent);padding:2px 0 2px 10px;max-height:6.5em;overflow:hidden}
+#noteText{width:100%;border:1px solid var(--rule);border-radius:9px;background:var(--paper);padding:10px 12px;font:15px/1.5 var(--serif);resize:vertical;min-height:90px}
+.nrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.nlist{list-style:none;margin:6px 0 0;padding:0;border-top:1px solid var(--rule);flex:1;overflow:auto}
+.nlist li{padding:10px 0;border-bottom:1px solid var(--rule)}
+.nlist .nh{display:flex;align-items:baseline;gap:8px;font-size:12px;color:var(--muted)}
+.nlist .nh b{color:var(--ink);font-weight:600}
+.nlist .nh .sp{flex:1}
+.nlist .nh button{border:0;background:none;color:var(--muted);font-size:12px;padding:2px 4px;border-radius:5px}
+.nlist .nh button:hover{color:var(--ink);background:var(--accent-soft)}
+.nlist .q{font:italic 13px/1.45 var(--serif);color:var(--muted);margin:4px 0}
+.nlist .t{font-size:14px;line-height:1.5;white-space:pre-wrap;margin:2px 0 0}
+.nlist .empty{color:var(--muted);font-size:14px;border:0;padding:12px 0}
+.nfoot{display:flex;gap:4px;flex-wrap:wrap;margin-left:-10px}
+.ticks{position:absolute;inset:0;pointer-events:none}
+.ticks i{position:absolute;bottom:0;width:2px;height:8px;margin-left:-1px;border-radius:1px;background:var(--ink);opacity:.45}
+.recent{width:100%;max-width:860px;margin-top:34px}
+.recent-h{display:flex;align-items:baseline;justify-content:space-between}
+.recent h2{font:500 19px/1.2 var(--serif);margin:0 0 8px}
+.rlist{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.rlist button.open{display:block;width:100%;text-align:left;border:0;background:none;padding:11px 4px 12px;border-bottom:1px solid var(--rule);position:relative}
+.rlist button.open:hover{background:var(--accent-soft)}
+.rlist .rt{display:block;font:16px/1.3 var(--serif);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rlist .rm{display:block;font-size:13px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}
+.rlist .rb{position:absolute;left:4px;right:4px;bottom:5px;height:2px;background:var(--rule);border-radius:1px;overflow:hidden}
+.rlist .rb i{display:block;height:100%;background:var(--accent);opacity:.7}
+.tabs{display:flex;gap:2px;margin:6px 0 4px}
+.lib{list-style:none;margin:8px 0 0;padding:0;max-height:52vh;overflow:auto;border-top:1px solid var(--rule)}
+.lib li{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--rule)}
+.lib .li-main{flex:1;min-width:0;border:0;background:none;text-align:left;padding:0}
+.lib .li-main:hover .rt{color:var(--accent)}
+.lib .rt{display:block;font:16px/1.3 var(--serif);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lib .rm{display:block;font-size:13px;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
+.menu a{display:block;color:inherit;text-decoration:none;text-align:left;padding:10px 12px;border-radius:8px;font-size:15px}
+.menu a:hover{background:var(--accent-soft)}
+.ocrbtn{margin-left:8px}
 .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .sh h2{font:500 21px var(--serif);margin:0}
 .sec{padding:14px 0 10px;border-top:1px solid var(--rule)}
@@ -354,12 +391,12 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
   .bar .play{order:4;width:46px;height:46px}
   .bar #openSettings{order:4}
   body.playing .bar .modes,body.playing .bar #stop,body.playing .bar .tools{display:none}
-  #settings{padding-bottom:calc(40px + env(safe-area-inset-bottom))}
+  #settings,#notes{padding-bottom:calc(40px + env(safe-area-inset-bottom))}
   #banner{bottom:auto;top:12px;max-width:calc(100vw - 24px)}
 }
 @media (prefers-reduced-motion:reduce){
   .mark::after{animation:none}
-  .mask,.band.hop,.dot,#settings{transition:none}
+  .mask,.band.hop,.dot,#settings,#notes{transition:none}
 }
 </style>
 </head>
@@ -374,7 +411,8 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
       <div class="menu" id="menu" hidden>
         <button id="goProgram" title="Seks trin på ca. 11 minutter: mål din hastighed, træn med pacer og indrykning i højt tempo, og mål igen.">Træningsprogram</button>
         <button data-open="dlgSchulte">Opvarmning</button>
-        <button data-open="dlgHistory">Historik</button>
+        <button data-open="dlgHistory">Historik og tekster</button>
+        <a id="ocrLink" href="ocr.html">Tekstgenkendelse (OCR)</a>
         <button data-open="dlgHelp">Om teknikkerne</button>
         <button data-open="dlgCredits">Credits</button>
       </div>
@@ -399,12 +437,9 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
     </div>
   </section>
 
-  <section class="later">
-    <div id="resumeBox" hidden>
-      <h2 id="resumeTitle">Fortsæt</h2>
-      <p id="resumeMeta"></p>
-      <button class="ghost" id="resume">Fortsæt hvor du slap</button>
-    </div>
+  <section class="recent" id="recent" hidden>
+    <div class="recent-h"><h2>Senest læst</h2><button class="textbtn" id="allTexts">Alle tekster</button></div>
+    <ol class="rlist" id="recentList"></ol>
   </section>
 
 </main>
@@ -442,6 +477,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
     <div class="tools">
       <button class="chip" id="noStopBtn" aria-pressed="false" title="Fjern stopord (K)">Uden stopord</button>
       <button class="icon" id="openToc" aria-label="Indhold (I)" title="Indhold (I)" hidden><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="4.5" cy="6" r="1.3" fill="currentColor"/><circle cx="4.5" cy="12" r="1.3" fill="currentColor"/><circle cx="4.5" cy="18" r="1.3" fill="currentColor"/></svg></button>
+      <button class="icon" id="openNotes" aria-label="Noter (M)" title="Noter (M)"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M5 19h4L19.5 8.5a2.1 2.1 0 0 0-3-3L6 16v3zM14.5 7.5l2 2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button class="icon" id="openWords" aria-label="Nøgleord (N)" title="Nøgleord (N)"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M5 6h14M5 12h9M5 18h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
       <button class="icon" id="focusBtn" aria-pressed="false" aria-label="Fokustilstand (F)" title="Fokustilstand (F)"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </div>
@@ -477,7 +513,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
       <span class="pct" id="etaPct"></span>
       <span><b id="etaLeft"></b> tilbage af <span id="etaTotal"></span></span>
     </div>
-    <div class="track"><div class="fill" id="fill"></div></div>
+    <div class="track"><div class="fill" id="fill"></div><div class="ticks" id="ticks"></div></div>
   </footer>
 </div>
 
@@ -485,6 +521,16 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
 <div id="toast" role="status" hidden></div>
 <div id="defPop" role="dialog" aria-label="Ordbog" hidden></div>
 <button id="lookChip" class="lookchip" hidden>Slå op</button>
+
+<!-- ================= NOTES ================= -->
+<aside id="notes" aria-label="Noter">
+  <div class="sh"><h2>Noter</h2><button class="icon" id="closeNotes" aria-label="Luk noter"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div>
+  <div class="nq" id="noteQuote"></div>
+  <textarea id="noteText" placeholder="Skriv en note ved dette sted …" aria-label="Ny note"></textarea>
+  <div class="nrow"><span class="hint" style="margin:0">Ctrl/⌘ + Enter gemmer</span><button class="primary" id="noteSave">Gem note</button></div>
+  <ol class="nlist" id="noteList"></ol>
+  <div class="nfoot"><button class="textbtn" id="noteCopy">Kopiér alle</button><button class="textbtn" id="noteDownload">Hent som tekstfil</button></div>
+</aside>
 
 <!-- ================= SETTINGS ================= -->
 <aside id="settings" aria-label="Indstillinger">
@@ -594,6 +640,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
       <kbd>R</kbd><span>Jævn eller spring rulning</span>
       <kbd>K</kbd><span>Uden stopord til og fra</span>
       <kbd>N</kbd><span>Nøgleord</span>
+      <kbd>M</kbd><span>Ny note ved stedet, du læser</span>
       <kbd>I</kbd><span>Indhold (kapitler eller sider)</span>
       <kbd>Dobbeltklik</kbd><span>Slå et ord op i ordbogen</span>
       <kbd>Enter</kbd><span>Afslut sessionen</span>
@@ -608,6 +655,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
       <button class="textbtn" data-open="dlgHistory">Historik</button>
       <button class="textbtn" data-open="dlgSchulte">Schulte-tabel</button>
       <button class="textbtn" id="openWords2">Nøgleord</button>
+      <button class="textbtn" id="openNotes2">Noter</button>
       <button class="textbtn" id="openToc2" hidden>Indhold</button>
       <button class="textbtn" id="goProgram2" title="Seks trin på ca. 11 minutter på den aktuelle tekst">Træningsprogram</button>
       <button class="textbtn" data-open="dlgCredits">Credits</button>
@@ -673,6 +721,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
     <p><b>Ψ-reader</b> (Psy-reader) er lavet af DAKI2501 og Claude, 2026.</p>
     <p>Freeware: må bruges, kopieres og deles gratis.</p>
     <p class="muted" style="font-size:14px">PDF-læsning med pdf.js fra Mozilla (Apache 2.0-licens). Ordbogsopslag via Free Dictionary API med data fra Wiktionary (CC BY-SA). Kilderne til eksempelteksten står under Om teknikkerne.</p>
+    <p class="muted" style="font-size:14px">Tekstgenkendelsen (Ψ-OCR) bruger Tesseract via tesseract.js (Apache 2.0), pdf-lib (MIT) og UTIF.js (MIT).</p>
     <p class="muted" style="font-size:14px">Hent filen eller se koden: <a href="https://github.com/DAKI2501/reader" target="_blank" rel="noopener">github.com/DAKI2501/reader</a></p>
     <div class="actions"><button class="primary" data-close>Luk</button></div>
   </div>
@@ -707,6 +756,8 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
 <dialog id="dlgHistory">
   <div class="dlg">
     <h2>Historik</h2>
+    <div class="seg tabs" id="histTabs"><button data-v="texts">Tekster</button><button data-v="sessions">Sessioner</button></div>
+    <div id="libBody"></div>
     <div id="histBody"></div>
     <div class="actions"><button class="ghost" id="histClear">Ryd historik</button><button class="primary" data-close>Luk</button></div>
   </div>
@@ -889,7 +940,7 @@ const lineCache = new Map();
 const E = {};
 ['fromLbl','fromChap','openToc','openToc2','dlgToc','tocMeta','tocPos','tocPosOut','tocGo','tocList','lookChip',
  'spd','noStopBtn','openWords','openWords2','focusBtn','turbo','sumOrig','dlgWords','wfMeta','wfSort','wfUnit','wfStop','wfFilter','wfList','wfClear',
- 'start','reader','input','file','go','goProgram','goProgram2','count','fromPageBox','fromPage','resumeBox','resumeTitle','resumeMeta','resume',
+ 'start','reader','input','file','go','goProgram','goProgram2','count','fromPageBox','fromPage','recent','recentList','allTexts','ocrLink','histTabs','libBody','notes','closeNotes','noteQuote','noteText','noteSave','noteList','noteCopy','noteDownload','openNotes','openNotes2','ticks',
  'bar','toStart','wpmOut','clock','play','stop','openSettings','stage','text','under','guides','band','body','over',
  'mTop','mBot','pen','dot','flag','rsvp','progress','fill','etaMore','etaPct','etaLeft','etaTotal','banner','skipPick','toast','settings','closeSettings',
  'dlgSummary','sumTitle','sumWpm','sumWords','sumTime','sumTargetLbl','sumTarget','sumRecall','sumComp','sumCompOut','sumEff','sumDiscard','sumUse','sumSave',
@@ -955,7 +1006,7 @@ function makeDoc(d) {
     for (const w of toks) words.push(w);
   }
   return { title: d.title, words, paras, pageStarts: (d.pageStarts || []).map(n => clamp(n, 0, Math.max(0, words.length - 1))),
-    pageTitles: d.pageTitles || null, pageLabel: d.pageLabel || 'side' };
+    pageTitles: d.pageTitles || null, pageNums: d.pageNums || null, pageLabel: d.pageLabel || 'side' };
 }
 
 /* ================= PDF ================= */
@@ -1216,9 +1267,12 @@ async function handleFile(f) {
       ? await readEpub(f, (n, N) => { E.count.textContent = `Læser kapitel ${n} af ${N} …`; })
       : await readPdf(f, (n, N) => { E.count.textContent = `Læser side ${n} af ${N} …`; });
     if (d.words < 20) {
-      E.count.textContent = '';
-      toast(isEpub ? 'E-bogen ser ud til at være tom eller bestå af billeder.' : 'PDF\'en indeholder næsten ingen tekst. Den er sandsynligvis scannet som billeder. Kør tekstgenkendelse (OCR) på den, eller indsæt teksten direkte.', 7000);
-      updateCount(); return;
+      updateCount();
+      if (isEpub) { toast('E-bogen ser ud til at være tom eller bestå af billeder.', 7000); return; }
+      E.count.innerHTML = 'PDF\'en er scannet og har ingen tekst. <button class="ghost ocrbtn" id="runOcr">Kør tekstgenkendelse</button>';
+      E.go.disabled = E.goProgram.disabled = true;
+      document.getElementById('runOcr').addEventListener('click', () => sendToOcr(f));
+      return;
     }
     E.input.value = d.paragraphs.join('\n\n');
     pending = d;
@@ -1238,6 +1292,14 @@ async function handleFile(f) {
     toast(msg, 7000);
   }
 }
+const OCR_URL = /^https?:$/.test(location.protocol) && !/claude|anthropic/.test(location.hostname) ? 'ocr.html' : 'https://daki2501.github.io/reader/ocr.html';
+async function sendToOcr(file) {
+  if (OCR_URL === 'ocr.html' && (await idbReady)) {
+    try { await DB.put('handoff', { key: 'toOcr', file, name: file.name, t: Date.now() }); location.href = 'ocr.html#from-reader'; return; } catch (e) {}
+  }
+  window.open(OCR_URL, '_blank', 'noopener');
+  toast('Ψ-OCR er åbnet i en ny fane. Slip filen der.', 5000);
+}
 E.file.addEventListener('change', () => { handleFile(E.file.files[0]); E.file.value = ''; });
 let dragDepth = 0;
 window.addEventListener('dragenter', e => { if (document.body.dataset.view !== 'start') return; e.preventDefault(); dragDepth++; document.body.classList.add('dragging'); });
@@ -1251,10 +1313,100 @@ window.addEventListener('drop', e => {
 });
 
 
-function begin(program) {
-  let d;
+/* ================= library: texts you have read, with position and notes =================
+   Stored in IndexedDB (shared with Ψ-OCR on the same site). Meta and full text live in separate
+   stores so the list stays fast with many books. Falls back to localStorage when IndexedDB is missing. */
+const DB = (() => {
+  let dbp = null;
+  function open() {
+    if (dbp) return dbp;
+    dbp = new Promise((res, rej) => {
+      try {
+        const r = indexedDB.open('psy-reader', 1);
+        r.onupgradeneeded = () => {
+          const db = r.result;
+          if (!db.objectStoreNames.contains('docs')) db.createObjectStore('docs', { keyPath: 'id' });
+          if (!db.objectStoreNames.contains('texts')) db.createObjectStore('texts', { keyPath: 'id' });
+          if (!db.objectStoreNames.contains('notes')) db.createObjectStore('notes', { keyPath: 'id' }).createIndex('doc', 'docId');
+          if (!db.objectStoreNames.contains('handoff')) db.createObjectStore('handoff', { keyPath: 'key' });
+        };
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => rej(r.error);
+        r.onblocked = () => rej(new Error('blocked'));
+      } catch (e) { rej(e); }
+    });
+    return dbp;
+  }
+  async function tx(stores, mode, fn) {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const t = db.transaction(stores, mode); let out;
+      const r = fn(t);
+      if (r && 'onsuccess' in r) r.onsuccess = () => { out = r.result; };
+      t.oncomplete = () => res(out); t.onerror = t.onabort = () => rej(t.error);
+    });
+  }
+  return {
+    ok: () => open().then(() => true, () => false),
+    get: (st, k) => tx([st], 'readonly', t => t.objectStore(st).get(k)),
+    put: (st, v) => tx([st], 'readwrite', t => t.objectStore(st).put(v)),
+    all: st => tx([st], 'readonly', t => t.objectStore(st).getAll()),
+    notesOf: id => tx(['notes'], 'readonly', t => t.objectStore('notes').index('doc').getAll(id)),
+    delDoc: id => tx(['docs', 'texts', 'notes'], 'readwrite', t => {
+      t.objectStore('docs').delete(id); t.objectStore('texts').delete(id);
+      const ix = t.objectStore('notes').index('doc').openKeyCursor(IDBKeyRange.only(id));
+      ix.onsuccess = () => { const c = ix.result; if (c) { t.objectStore('notes').delete(c.primaryKey); c.continue(); } };
+    }),
+    del: (st, k) => tx([st], 'readwrite', t => t.objectStore(st).delete(k)),
+  };
+})();
+let IDB = false;
+const idbReady = DB.ok().then(v => (IDB = v));
+function hashStr(str) {
+  let h1 = 0x811c9dc5, h2 = 0x1000193;
+  for (let i = 0; i < str.length; i++) { const c = str.charCodeAt(i); h1 = Math.imul(h1 ^ c, 16777619); h2 = Math.imul(h2 ^ c, 2246822519); }
+  return (h1 >>> 0).toString(36) + (h2 >>> 0).toString(36);
+}
+function docKey(d) { const j = d.paragraphs.join('\n'); return 'd' + hashStr(d.title + '|' + j.length + '|' + j.slice(0, 4000) + j.slice(-2000)); }
+const dateFmt = new Intl.DateTimeFormat('da-DK', { day: 'numeric', month: 'short' });
+function ago(t) {
+  const d = (Date.now() - t) / 864e5;
+  return d < 1 && new Date(t).getDate() === new Date().getDate() ? 'i dag' : d < 2 ? 'i går' : d < 7 ? `for ${Math.floor(d)} dage siden` : dateFmt.format(t);
+}
+async function saveToLibrary(d, words, pos) {
+  if (!(await idbReady)) return null;
+  const id = docKey(d), old = await DB.get('docs', id).catch(() => null), now = Date.now();
+  const meta = Object.assign(old || { added: now, notes: 0 }, { id, title: d.title || 'Uden titel', words, pages: (d.pageStarts || []).length, pageLabel: d.pageLabel || 'side', opened: now });
+  if (!old) await DB.put('texts', { id, paragraphs: d.paragraphs, pageStarts: d.pageStarts || [], pageTitles: d.pageTitles || null, pageNums: d.pageNums || null, pageLabel: d.pageLabel || 'side' });
+  if (!old || pos > 0) meta.pos = pos;
+  await DB.put('docs', meta);
+  return meta;
+}
+async function openFromLibrary(id) {
+  if (!(await idbReady)) return false;
+  const meta = await DB.get('docs', id).catch(() => null), t = await DB.get('texts', id).catch(() => null);
+  if (!meta || !t) { toast('Teksten findes ikke længere i historikken.'); return false; }
+  meta.opened = Date.now(); DB.put('docs', meta).catch(() => {});
+  S.meta = meta; S.docId = id;
+  openReader(makeDoc(Object.assign({ title: meta.title }, t)), meta.pos || 0);
+  loadNotes();
+  return true;
+}
+let libSaveTimer = 0;
+function savePos() {
+  if (!S.doc || !S.words.length) return;
+  const pos = origPos(S.pos);
+  store.set('pos', pos);
+  if (S.meta && IDB) {
+    S.meta.pos = pos; S.meta.opened = Date.now();
+    clearTimeout(libSaveTimer); libSaveTimer = setTimeout(() => DB.put('docs', S.meta).catch(() => {}), 400);
+  }
+}
+
+async function begin(program) {
+  let d, sample = false;
   if (pending) d = pending;
-  else if (!E.input.value.trim()) d = { title: SAMPLE_TITLE, paragraphs: parsePlain(SAMPLE), pageStarts: [] };
+  else if (!E.input.value.trim()) { d = { title: SAMPLE_TITLE, paragraphs: parsePlain(SAMPLE), pageStarts: [] }; sample = true; }
   else { const paras = parsePlain(E.input.value); d = { title: E.input.dataset.title || titleFrom(paras), paragraphs: paras, pageStarts: [] }; }
   const doc = makeDoc(d);
   if (doc.words.length < 2) return;
@@ -1263,27 +1415,147 @@ function begin(program) {
     const k = doc.pageLabel === 'kapitel' ? +E.fromChap.value || 0 : (+E.fromPage.value || 1) - 1;
     pos = doc.pageStarts[clamp(k, 0, doc.pageStarts.length - 1)] || 0;
   }
-  if (!store.set('doc', { title: d.title, paragraphs: d.paragraphs, pageStarts: d.pageStarts, pageTitles: d.pageTitles || null, pageLabel: d.pageLabel || 'side' })) store.del('doc');
+  S.meta = null; S.docId = null;
+  let meta = null;
+  if (!sample) try { meta = await saveToLibrary(d, doc.words.length, pos); } catch (e) {}
+  if (meta) {
+    S.meta = meta; S.docId = meta.id;
+    if (pos === 0 && meta.pos > 20 && meta.pos < doc.words.length - 20) { pos = meta.pos; toast(`Fortsætter, hvor du slap (${Math.round(100 * pos / doc.words.length)} %).`, 2600); }
+  } else if (!sample) {
+    if (!store.set('doc', { title: d.title, paragraphs: d.paragraphs, pageStarts: d.pageStarts, pageTitles: d.pageTitles || null, pageNums: d.pageNums || null, pageLabel: d.pageLabel || 'side' })) store.del('doc');
+  }
   store.set('pos', pos);
   openReader(doc, pos);
+  loadNotes();
   if (program) startProgram();
 }
 E.go.addEventListener('click', () => begin(false));
 E.goProgram.addEventListener('click', () => begin(true));
 E.goProgram2.addEventListener('click', () => { E.settings.classList.remove('open'); startProgram(); });
-E.resume.addEventListener('click', () => {
-  const d = store.get('doc', null); if (!d) return;
-  openReader(makeDoc(d), store.get('pos', 0));
-});
-function showResume() {
-  const d = store.get('doc', null);
-  if (!d || !d.paragraphs || !d.paragraphs.length) { E.resumeBox.hidden = true; return; }
-  const total = d.paragraphs.reduce((a, p) => a + p.split(/\s+/).filter(Boolean).length, 0);
-  const pos = store.get('pos', 0);
-  E.resumeTitle.textContent = d.title || 'Fortsæt';
-  E.resumeMeta.textContent = `${Math.round(100 * pos / Math.max(1, total - 1))} % læst af ${fmtInt(total)} ord. Ca. ${Math.max(1, Math.round((total - pos) / settings.wpm))} min tilbage ved ${settings.wpm} ord/min.`;
-  E.resumeBox.hidden = false;
+
+function docLine(m) {
+  const pct = Math.round(100 * (m.pos || 0) / Math.max(1, m.words - 1));
+  const left = Math.max(0, m.words - (m.pos || 0)), mins = Math.round(left / settings.wpm);
+  return { pct, text: [`${pct} % læst`, `${fmtInt(m.words)} ord`, pct < 99 ? `ca. ${mins < 1 ? 'under 1' : mins} min tilbage` : 'færdig', m.notes ? `${m.notes} ${m.notes === 1 ? 'note' : 'noter'}` : '', ago(m.opened)].filter(Boolean).join(', ') };
 }
+async function showResume() {
+  if (!(await idbReady)) {
+    // older single-text fallback
+    const d = store.get('doc', null);
+    if (!d || !d.paragraphs) { E.recent.hidden = true; return; }
+    const words = d.paragraphs.reduce((a, p) => a + p.split(/\s+/).filter(Boolean).length, 0);
+    E.recentList.innerHTML = `<li><button class="open" data-legacy="1"><span class="rt">${esc(d.title || 'Fortsæt')}</span><span class="rm">${esc(docLine({ words, pos: store.get('pos', 0), opened: Date.now() }).text)}</span></button></li>`;
+    E.allTexts.hidden = true; E.recent.hidden = false; return;
+  }
+  const docs = (await DB.all('docs').catch(() => [])).sort((a, b) => b.opened - a.opened);
+  // move an old single text into the library once
+  if (!docs.length && store.get('doc', null)) {
+    const d = store.get('doc', null), words = d.paragraphs.reduce((a, p) => a + p.split(/\s+/).filter(Boolean).length, 0);
+    try { await saveToLibrary(d, words, store.get('pos', 0)); store.del('doc'); return showResume(); } catch (e) {}
+  }
+  E.recent.hidden = !docs.length;
+  E.allTexts.hidden = docs.length < 2;
+  E.recentList.innerHTML = docs.slice(0, 4).map(m => { const l = docLine(m); return `<li><button class="open" data-id="${m.id}"><span class="rt">${esc(m.title)}</span><span class="rm">${esc(l.text)}</span><span class="rb"><i style="width:${l.pct}%"></i></span></button></li>`; }).join('');
+}
+E.recentList.addEventListener('click', e => {
+  const b = e.target.closest('button.open'); if (!b) return;
+  if (b.dataset.legacy) { const d = store.get('doc', null); if (d) openReader(makeDoc(d), store.get('pos', 0)); return; }
+  openFromLibrary(b.dataset.id);
+});
+E.allTexts.addEventListener('click', () => { histTab = 'texts'; renderHistory(); E.dlgHistory.showModal(); });
+
+/* ================= notes ================= */
+S.notes = [];
+function nid() { return 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function placeLabel(o) {
+  const F = S.full, pct = Math.round(100 * o / Math.max(1, F.words.length - 1));
+  if (F.pageStarts && F.pageStarts.length > 1) {
+    let lo = 0, hi = F.pageStarts.length - 1;
+    while (lo < hi) { const m = (lo + hi + 1) >> 1; if (F.pageStarts[m] <= o) lo = m; else hi = m - 1; }
+    return (F.pageLabel === 'kapitel' ? 'kap. ' : 's. ') + ((F.pageNums && F.pageNums[lo]) || lo + 1) + `, ${pct} %`;
+  }
+  return pct + ' %';
+}
+function quoteAt(o) {
+  const W = S.full.words; if (!W.length) return '';
+  let a = clamp(o, 0, W.length - 1), b = a;
+  while (a > 0 && o - a < 30 && !SENT_END.test(W[a - 1])) a--;
+  while (b < W.length - 1 && b - a < 45 && !SENT_END.test(W[b])) b++;
+  return (a > 0 && !SENT_END.test(W[a - 1]) ? '… ' : '') + W.slice(a, b + 1).join(' ') + (b < W.length - 1 && !SENT_END.test(W[b]) ? ' …' : '');
+}
+async function loadNotes() {
+  S.notes = [];
+  if (S.docId && IDB) S.notes = (await DB.notesOf(S.docId).catch(() => [])) || [];
+  S.notes.sort((a, b) => a.pos - b.pos);
+  renderNotes(); drawTicks();
+}
+function drawTicks() {
+  if (!S.full || !S.words.length) { E.ticks.innerHTML = ''; return; }
+  const n = S.words.length;
+  E.ticks.innerHTML = S.notes.map(x => `<i style="left:${(100 * toActive(x.pos) / Math.max(1, n - 1)).toFixed(2)}%"></i>`).join('');
+}
+function renderNotes() {
+  if (!S.docId) { E.noteList.innerHTML = '<li class="empty">Noter gemmes for tekster i historikken. Eksempelteksten gemmes ikke.</li>'; return; }
+  if (!S.notes.length) { E.noteList.innerHTML = '<li class="empty">Ingen noter endnu. Skriv en ovenfor, eller tryk M, mens du læser.</li>'; return; }
+  const df = new Intl.DateTimeFormat('da-DK', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  E.noteList.innerHTML = S.notes.map(x => `<li data-id="${x.id}"><div class="nh"><b>${esc(placeLabel(x.pos))}</b>${x.kind === 'recall' ? '<span>genkaldelse</span>' : ''}<span class="sp"></span><span>${df.format(x.created)}</span><button data-act="go">Gå hertil</button><button data-act="del">Slet</button></div>${x.quote ? `<p class="q">${esc(x.quote)}</p>` : ''}<p class="t">${esc(x.text)}</p></li>`).join('');
+}
+function openNotes(focus) {
+  if (!S.full) return;
+  pause();
+  E.settings.classList.remove('open');
+  E.noteQuote.textContent = quoteAt(origPos(S.pos));
+  renderNotes();
+  E.notes.classList.add('open');
+  if (focus) setTimeout(() => E.noteText.focus(), 60);
+}
+function closeNotes() { E.notes.classList.remove('open'); if (document.activeElement === E.noteText) E.noteText.blur(); }
+async function addNote(text, kind) {
+  text = (text || '').trim(); if (!text) return false;
+  if (!S.docId || !IDB) { toast('Noter kan ikke gemmes her. Åbn teksten fra din egen enhed eller fra GitHub-adressen.'); return false; }
+  const o = origPos(S.pos);
+  const n = { id: nid(), docId: S.docId, pos: o, quote: kind === 'recall' ? '' : quoteAt(o), text, kind: kind || 'note', created: Date.now() };
+  await DB.put('notes', n);
+  S.notes.push(n); S.notes.sort((a, b) => a.pos - b.pos);
+  if (S.meta) { S.meta.notes = S.notes.length; DB.put('docs', S.meta).catch(() => {}); }
+  renderNotes(); drawTicks();
+  return true;
+}
+E.noteSave.addEventListener('click', async () => { if (await addNote(E.noteText.value)) { E.noteText.value = ''; toast('Note gemt.', 1400); } });
+E.noteText.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); E.noteSave.click(); } if (e.key === 'Escape') closeNotes(); });
+E.noteList.addEventListener('click', async e => {
+  const b = e.target.closest('button[data-act]'); if (!b) return;
+  const id = b.closest('li').dataset.id, n = S.notes.find(x => x.id === id); if (!n) return;
+  if (b.dataset.act === 'go') { jumpTo(toActive(n.pos)); closeNotes(); return; }
+  if (b.dataset.act === 'del') {
+    if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = 'Slet?'; setTimeout(() => { if (b.isConnected) { delete b.dataset.armed; b.textContent = 'Slet'; } }, 3000); return; }
+    await DB.del('notes', id).catch(() => {});
+    S.notes = S.notes.filter(x => x.id !== id);
+    if (S.meta) { S.meta.notes = S.notes.length; DB.put('docs', S.meta).catch(() => {}); }
+    renderNotes(); drawTicks();
+  }
+});
+function notesMarkdown() {
+  const title = S.full ? S.full.title : '';
+  let md = `# Noter: ${title}\n\n`;
+  for (const x of S.notes) md += `## ${placeLabel(x.pos)}${x.kind === 'recall' ? ' (genkaldelse)' : ''}\n\n${x.quote ? '> ' + x.quote + '\n\n' : ''}${x.text}\n\n`;
+  return md;
+}
+E.noteCopy.addEventListener('click', async () => {
+  if (!S.notes.length) return;
+  try { await navigator.clipboard.writeText(notesMarkdown()); toast('Noterne er kopieret.', 1600); } catch (e) { toast('Kopiering blev afvist af browseren.'); }
+});
+E.noteDownload.addEventListener('click', () => {
+  if (!S.notes.length) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([notesMarkdown()], { type: 'text/markdown;charset=utf-8' }));
+  a.download = `Noter – ${(S.full.title || 'tekst').replace(/[\\/:*?"<>|]+/g, '').slice(0, 60)}.md`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+});
+E.openNotes.addEventListener('click', e => { if (e.detail) E.openNotes.blur(); E.notes.classList.contains('open') ? closeNotes() : openNotes(false); });
+E.openNotes2.addEventListener('click', () => openNotes(false));
+E.closeNotes.addEventListener('click', closeNotes);
 
 /* ================= stop words, compressed text, key words ================= */
 // "read" lists remove function words only; negations, contrast/cause words and modals stay,
@@ -1329,7 +1601,7 @@ function buildCompressed() {
     if (words.length > s) paras.push({ start: s, end: words.length });
   }
   const lb = x => { let lo = 0, hi = map.length; while (lo < hi) { const m = (lo + hi) >> 1; if (map[m] < x) lo = m + 1; else hi = m; } return Math.min(lo, Math.max(0, map.length - 1)); };
-  return { title: F.title, words, paras, pageStarts: F.pageStarts.map(lb), pageTitles: F.pageTitles, pageLabel: F.pageLabel, map, lb };
+  return { title: F.title, words, paras, pageStarts: F.pageStarts.map(lb), pageTitles: F.pageTitles, pageNums: F.pageNums, pageLabel: F.pageLabel, map, lb };
 }
 const origPos = i => S.map ? S.map[clamp(i, 0, S.map.length - 1)] : i;
 const toActive = o => S.map ? S.comp.lb(o) : o;
@@ -1348,6 +1620,7 @@ function useDoc(orig) {
   S.pos = clamp(toActive(orig), 0, S.words.length - 1);
   S.unit = null; S.el = 0;
   applyMarks();
+  if (typeof drawTicks === 'function') drawTicks();
 }
 function toggleNoStop(v) {
   if (S.picking) return;
@@ -1563,7 +1836,7 @@ function openToc() {
   if (P.length > 1) {
     const cur = sectionAt(S.pos);
     E.tocMeta.textContent = `${P.length} ${chap ? 'kapitler' : 'sider'}.`;
-    E.tocList.innerHTML = P.map((st, i) => `<li><button type="button" data-i="${i}"${i === cur ? ' aria-current="true"' : ''}><span class="tt">${chap ? `${i + 1}. ${esc(S.full.pageTitles[i] || '')}` : `Side ${i + 1}`}</span><span class="tp">${Math.round(100 * st / Math.max(1, n - 1))} %</span></button></li>`).join('');
+    E.tocList.innerHTML = P.map((st, i) => `<li><button type="button" data-i="${i}"${i === cur ? ' aria-current="true"' : ''}><span class="tt">${chap ? `${i + 1}. ${esc(S.full.pageTitles[i] || '')}` : `Side ${esc((S.full.pageNums && S.full.pageNums[i]) || i + 1)}`}</span><span class="tp">${Math.round(100 * st / Math.max(1, n - 1))} %</span></button></li>`).join('');
   } else {
     E.tocMeta.textContent = 'Teksten har ingen kapitler eller sider. Brug skyderen til at springe.';
     E.tocList.innerHTML = '';
@@ -1948,7 +2221,7 @@ function endPick(i) {
   if (i == null || ses.words === 0) return;
   showSummary(ses, 'free');
 }
-function savePos() { if (S.doc && S.words.length) store.set('pos', origPos(S.pos)); }
+
 
 /* ================= summary & history ================= */
 let sumData = null;
@@ -1983,7 +2256,11 @@ function updateEff() {
 }
 E.sumComp.addEventListener('input', updateEff);
 E.sumSave.addEventListener('click', () => {
-  if (sumData) { const h = store.get('history', []); h.push(Object.assign(sumData, { comp: +E.sumComp.value, recall: E.sumRecall.value.trim().slice(0, 2000) })); store.set('history', h.slice(-500)); }
+  if (sumData) {
+    const h = store.get('history', []), recall = E.sumRecall.value.trim().slice(0, 2000);
+    h.push(Object.assign(sumData, { comp: +E.sumComp.value, recall, docId: S.docId || null })); store.set('history', h.slice(-500));
+    if (recall) addNote(`${recall}\n\n(${fmtInt(sumData.wpm)} ord/min, ${E.sumComp.value} % forståelse)`, 'recall');
+  }
   sumData = null; E.dlgSummary.close(); toast('Gemt i historikken.', 2000);
 });
 E.sumDiscard.addEventListener('click', () => { sumData = null; E.dlgSummary.close(); });
@@ -1991,7 +2268,30 @@ E.sumUse.addEventListener('click', () => {
   if (sumData) setSetting('wpm', clamp(Math.round(sumData.wpm / 10) * 10, 50, 1500));
   E.sumUse.hidden = true;
 });
+let histTab = 'texts';
+E.histTabs.addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (b) { histTab = b.dataset.v; renderHistory(); } });
+async function renderLibrary() {
+  if (!(await idbReady)) { E.libBody.innerHTML = '<p class="muted">Historikken over tekster kræver, at browseren må gemme data for siden.</p>'; return; }
+  const docs = (await DB.all('docs').catch(() => [])).sort((a, b) => b.opened - a.opened);
+  if (!docs.length) { E.libBody.innerHTML = '<p class="muted">Ingen tekster endnu. Når du læser en tekst, PDF eller e-bog, kommer den med her, så du kan fortsætte, hvor du slap.</p>'; return; }
+  const words = docs.reduce((a, m) => a + (m.pos || 0), 0);
+  E.libBody.innerHTML = `<p class="muted">${docs.length} ${docs.length === 1 ? 'tekst' : 'tekster'}, ${fmtInt(words)} ord læst i alt.</p><ol class="lib">` + docs.map(m => `<li data-id="${m.id}"><button class="li-main"><span class="rt">${esc(m.title)}</span><span class="rm">${esc(docLine(m).text)}</span></button><button class="textbtn" data-act="del">Slet</button></li>`).join('') + '</ol>';
+}
+E.libBody.addEventListener('click', async e => {
+  const li = e.target.closest('li[data-id]'); if (!li) return;
+  const del = e.target.closest('button[data-act=del]');
+  if (del) {
+    if (!del.dataset.armed) { del.dataset.armed = '1'; del.textContent = 'Slet tekst og noter?'; setTimeout(() => { if (del.isConnected) { delete del.dataset.armed; del.textContent = 'Slet'; } }, 3500); return; }
+    await DB.delDoc(li.dataset.id).catch(() => {});
+    if (S.docId === li.dataset.id) { S.docId = null; S.meta = null; S.notes = []; drawTicks(); }
+    renderLibrary(); showResume(); return;
+  }
+  if (e.target.closest('.li-main')) { E.dlgHistory.close(); openFromLibrary(li.dataset.id); }
+});
 function renderHistory() {
+  $$('button', E.histTabs).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === histTab)));
+  E.libBody.hidden = histTab !== 'texts'; E.histBody.hidden = histTab === 'texts';
+  if (histTab === 'texts') { E.histClear.hidden = true; renderLibrary(); return; }
   const h = store.get('history', []);
   if (!h.length) { E.histBody.innerHTML = '<p class="muted">Ingen gemte sessioner endnu. Når du gemmer en session efter en øvelse, dukker den op her.</p>'; E.histClear.hidden = true; return; }
   E.histClear.hidden = false;
@@ -2282,7 +2582,8 @@ function updateProgress() {
     let lo = 0, hi = S.pageStarts.length - 1;
     while (lo < hi) { const m = (lo + hi + 1) >> 1; if (S.pageStarts[m] <= S.pos) lo = m; else hi = m - 1; }
     const t = S.full && S.full.pageTitles && S.full.pageTitles[lo];
-    page = `${S.full && S.full.pageLabel === 'kapitel' ? 'Kapitel' : 'Side'} ${lo + 1} af ${S.pageStarts.length}${t ? ': ' + (t.length > 40 ? t.slice(0, 38) + '…' : t) : ''}`;
+    const pn = S.full && S.full.pageNums && S.full.pageNums[lo];
+    page = pn ? `Side ${pn} (${lo + 1} af ${S.pageStarts.length})` : `${S.full && S.full.pageLabel === 'kapitel' ? 'Kapitel' : 'Side'} ${lo + 1} af ${S.pageStarts.length}${t ? ': ' + (t.length > 40 ? t.slice(0, 38) + '…' : t) : ''}`;
   }
   const more = [page, `ved ${Math.round(etaWpm())} ord/min`, `færdig ca. kl. ${clockFmt.format(Date.now() + left * 60000)}`].filter(Boolean).join(', ');
   const key = [Math.round(f * 100), fmtDur(left), fmtDur(total), more].join('|');
@@ -2303,6 +2604,7 @@ E.toStart.addEventListener('click', () => {
   pause(); S.session = null; savePos();
   E.settings.classList.remove('open');
   document.body.dataset.view = 'start';
+  closeNotes();
   showResume(); updateCount();
 });
 E.progress.addEventListener('click', e => {
@@ -2352,7 +2654,7 @@ E.stage.addEventListener('click', e => {
 E.rsvp.addEventListener('click', () => { if (!S.picking) toggle(); });
 E.skipPick.addEventListener('click', () => endPick(null));
 E.fixFit.addEventListener('click', () => setSetting('measure', +E.fixFit.dataset.target));
-E.openSettings.addEventListener('click', () => E.settings.classList.toggle('open'));
+E.openSettings.addEventListener('click', () => { closeNotes(); E.settings.classList.toggle('open'); });
 E.closeSettings.addEventListener('click', () => E.settings.classList.remove('open'));
 
 let idleTimer = 0;
@@ -2431,11 +2733,13 @@ document.addEventListener('keydown', e => {
   else if (k === 'r' || k === 'R') { const v = cfg('scroll') === 'smooth' ? 'jump' : 'smooth'; setSetting('scroll', v); toast(v === 'smooth' ? 'Jævn rulning' : 'Spring linje for linje', 1200); }
   else if (k === 'n' || k === 'N') openWords();
   else if (k === 'i' || k === 'I') openToc();
+  else if (k === 'm' || k === 'M') { e.preventDefault(); openNotes(true); }
   else if (k === '+' || k === '=') fontStep(1);
   else if (k === '-') fontStep(-1);
   else if (k === 'Enter') { if (S.session) finish('stop'); }
   else if (k === 'Escape') {
     if (!defPop.hidden) hideDefPop();
+    else if (E.notes.classList.contains('open')) closeNotes();
     else if (E.settings.classList.contains('open')) E.settings.classList.remove('open');
     else if (S.picking) endPick(null);
     else if (S.playing) pause();
@@ -2612,6 +2916,22 @@ document.addEventListener('click', e => { if (!E.menu.hidden && !E.menu.contains
 document.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
 
 /* ================= boot ================= */
+E.ocrLink.href = OCR_URL;
+if (OCR_URL !== 'ocr.html') { E.ocrLink.target = '_blank'; E.ocrLink.rel = 'noopener'; }
+{ const m = location.hash.match(/^#open-([\w-]+)$/); if (m) { history.replaceState(null, '', location.pathname + location.search); openFromLibrary(m[1]); } }
+if (location.hash === '#from-ocr') {
+  history.replaceState(null, '', location.pathname + location.search);
+  idbReady.then(async ok => {
+    if (!ok) return;
+    const h = await DB.get('handoff', 'toReader').catch(() => null);
+    if (!h || !h.doc) return;
+    await DB.del('handoff', 'toReader').catch(() => {});
+    const d = h.doc;
+    E.input.value = d.paragraphs.join('\n\n');
+    pending = d; showFrom(d); updateCount();
+    begin(false);
+  });
+}
 { const h = store.get('history', []).filter(r => r.mode === 'free' || r.mode === 'test'); if (h.length) S.freeWpm = h[h.length - 1].wpm; }
 applyLook();
 syncControls();
