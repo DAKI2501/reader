@@ -36,7 +36,7 @@ Under *Om teknikkerne* i appen står, hvad forskningen siger om hver teknik, med
 
 ## Credits
 
-Lavet af DAKI2501 og Claude, 2026.
+Lavet af [DAKI2501](https://github.com/DAKI2501) og Claude, 2026.
 
 Freeware: må bruges, kopieres og deles gratis. Se [LICENSE.txt](LICENSE.txt).
 

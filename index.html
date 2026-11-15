@@ -228,6 +228,16 @@ body[data-eta=off] .eta{display:none}
 .nfoot{display:flex;gap:4px;flex-wrap:wrap;margin-left:-10px}
 .ticks{position:absolute;inset:0;pointer-events:none}
 .ticks i{position:absolute;bottom:0;width:2px;height:8px;margin-left:-1px;border-radius:1px;background:var(--ink);opacity:.45}
+.ticks i.m{background:var(--accent);opacity:.9;height:10px}
+#body p.has-note,#body p.has-mark{border-left:3px solid var(--faint);margin-left:-17px;padding-left:14px}
+#body p.has-mark{border-left-color:var(--accent)}
+#markBtn.on{color:var(--accent)}
+#markBtn.pulse svg{animation:flagpulse .5s ease}
+@keyframes flagpulse{40%{transform:scale(1.35)}}
+.nfilter{margin-top:2px}
+.nlist .nh .tag{color:var(--accent)}
+#appendText{display:block;width:100%;height:min(34vh,300px);border:1px solid var(--rule);border-radius:9px;background:var(--paper);padding:12px 14px;font:15px/1.55 var(--serif);resize:vertical;margin:10px 0 4px}
+.dlg .actions .file-btn{margin-right:auto}
 .recent{width:100%;max-width:860px;margin-top:34px}
 .recent-h{display:flex;align-items:baseline;justify-content:space-between}
 .recent h2{font:500 19px/1.2 var(--serif);margin:0 0 8px}
@@ -390,8 +400,9 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
   .bar .clock select{display:none}
   .bar .play{order:4;width:46px;height:46px}
   .bar #openSettings{order:4}
-  body.playing .bar .modes,body.playing .bar #stop,body.playing .bar .tools{display:none}
+  body.playing .bar .modes,body.playing .bar #stop,body.playing .bar .tools>:not(#markBtn){display:none}
   #settings,#notes{padding-bottom:calc(40px + env(safe-area-inset-bottom))}
+  #body p.has-note,#body p.has-mark{margin-left:-11px;padding-left:8px}
   #banner{bottom:auto;top:12px;max-width:calc(100vw - 24px)}
 }
 @media (prefers-reduced-motion:reduce){
@@ -433,6 +444,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
       <label class="fromPage" id="fromPageBox" hidden><span id="fromLbl">Fra side</span> <input type="number" id="fromPage" min="1" value="1"><select id="fromChap" hidden></select></label>
       <span id="count"></span>
       <span class="grow"></span>
+      <button class="ghost" id="appendBtn" hidden></button>
       <button class="primary" id="go" disabled>Begynd at læse</button>
     </div>
   </section>
@@ -478,6 +490,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
       <button class="chip" id="noStopBtn" aria-pressed="false" title="Fjern stopord (K)">Uden stopord</button>
       <button class="icon" id="openToc" aria-label="Indhold (I)" title="Indhold (I)" hidden><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="4.5" cy="6" r="1.3" fill="currentColor"/><circle cx="4.5" cy="12" r="1.3" fill="currentColor"/><circle cx="4.5" cy="18" r="1.3" fill="currentColor"/></svg></button>
       <button class="icon" id="openNotes" aria-label="Noter (M)" title="Noter (M)"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M5 19h4L19.5 8.5a2.1 2.1 0 0 0-3-3L6 16v3zM14.5 7.5l2 2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="icon" id="markBtn" aria-label="Markér stedet (H)" title="Markér stedet (H)"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M7 4h10v16l-5-3.6L7 20z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></button>
       <button class="icon" id="openWords" aria-label="Nøgleord (N)" title="Nøgleord (N)"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M5 6h14M5 12h9M5 18h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
       <button class="icon" id="focusBtn" aria-pressed="false" aria-label="Fokustilstand (F)" title="Fokustilstand (F)"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </div>
@@ -528,6 +541,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
   <div class="nq" id="noteQuote"></div>
   <textarea id="noteText" placeholder="Skriv en note ved dette sted …" aria-label="Ny note"></textarea>
   <div class="nrow"><span class="hint" style="margin:0">Ctrl/⌘ + Enter gemmer</span><button class="primary" id="noteSave">Gem note</button></div>
+  <div class="seg nfilter" id="noteFilter" role="group" aria-label="Vis"><button data-v="all" aria-pressed="true">Alle</button><button data-v="note" aria-pressed="false">Noter</button><button data-v="mark" aria-pressed="false">Markeringer</button></div>
   <ol class="nlist" id="noteList"></ol>
   <div class="nfoot"><button class="textbtn" id="noteCopy">Kopiér alle</button><button class="textbtn" id="noteDownload">Hent som tekstfil</button></div>
 </aside>
@@ -641,6 +655,9 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
       <kbd>K</kbd><span>Uden stopord til og fra</span>
       <kbd>N</kbd><span>Nøgleord</span>
       <kbd>M</kbd><span>Ny note ved stedet, du læser</span>
+      <kbd>H</kbd><span>Markér stedet uden at stoppe (tryk igen for at fjerne)</span>
+      <kbd>, .</kbd><span>Forrige og næste markering eller note</span>
+      <kbd>Ctrl V</kbd><span>Indsæt mere tekst sidst i bogen</span>
       <kbd>I</kbd><span>Indhold (kapitler eller sider)</span>
       <kbd>Dobbeltklik</kbd><span>Slå et ord op i ordbogen</span>
       <kbd>Enter</kbd><span>Afslut sessionen</span>
@@ -656,6 +673,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
       <button class="textbtn" data-open="dlgSchulte">Schulte-tabel</button>
       <button class="textbtn" id="openWords2">Nøgleord</button>
       <button class="textbtn" id="openNotes2">Noter</button>
+      <button class="textbtn" id="openAppend">Tilføj tekst</button>
       <button class="textbtn" id="openToc2" hidden>Indhold</button>
       <button class="textbtn" id="goProgram2" title="Seks trin på ca. 11 minutter på den aktuelle tekst">Træningsprogram</button>
       <button class="textbtn" data-open="dlgCredits">Credits</button>
@@ -718,12 +736,22 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
 <dialog id="dlgCredits">
   <div class="dlg">
     <h2>Credits</h2>
-    <p><b>Ψ-reader</b> (Psy-reader) er lavet af DAKI2501 og Claude, 2026.</p>
+    <p><b>Ψ-reader</b> (Psy-reader) er lavet af <a href="https://github.com/DAKI2501" target="_blank" rel="noopener">DAKI2501</a> og Claude, 2026.</p>
     <p>Freeware: må bruges, kopieres og deles gratis.</p>
     <p class="muted" style="font-size:14px">PDF-læsning med pdf.js fra Mozilla (Apache 2.0-licens). Ordbogsopslag via Free Dictionary API med data fra Wiktionary (CC BY-SA). Kilderne til eksempelteksten står under Om teknikkerne.</p>
     <p class="muted" style="font-size:14px">Tekstgenkendelsen (Ψ-OCR) bruger Tesseract via tesseract.js (Apache 2.0), pdf-lib (MIT) og UTIF.js (MIT).</p>
     <p class="muted" style="font-size:14px">Hent filen eller se koden: <a href="https://github.com/DAKI2501/reader" target="_blank" rel="noopener">github.com/DAKI2501/reader</a></p>
     <div class="actions"><button class="primary" data-close>Luk</button></div>
+  </div>
+</dialog>
+
+<dialog id="dlgAppend">
+  <div class="dlg">
+    <h2>Tilføj til teksten</h2>
+    <p class="muted" id="appendMeta" style="margin:0"></p>
+    <textarea id="appendText" spellcheck="false" placeholder="Indsæt den næste side her …" aria-label="Tekst, der skal tilføjes"></textarea>
+    <p class="hint">Du kan også trykke Ctrl+V (⌘V på Mac) direkte i læseren eller slippe en PDF, EPUB eller tekstfil på den.</p>
+    <div class="actions"><label class="ghost file-btn">Vælg fil<input type="file" id="appendFile" accept=".pdf,.epub,.txt,.md,.text,application/pdf,application/epub+zip,text/plain"></label><button class="ghost" data-close>Annullér</button><button class="primary" id="appendGo" disabled>Tilføj</button></div>
   </div>
 </dialog>
 
@@ -902,7 +930,7 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const nf = new Intl.NumberFormat('da-DK');
 const fmtInt = n => nf.format(Math.round(n));
 const fmtTime = ms => { const s = Math.max(0, Math.ceil(ms / 1000 - 0.001)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
-const esc = s => s.replace(/[&<>]/g, c => c === '&' ? '&amp;' : c === '<' ? '&lt;' : '&gt;');
+const esc = s => String(s).replace(/[&<>]/g, c => c === '&' ? '&amp;' : c === '<' ? '&lt;' : '&gt;');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const SENT_END = /[.!?…]["»”’')\]]*$/;
 const SOFT_END = /[,;:–—]["»”’')\]]*$/;
@@ -940,7 +968,7 @@ const lineCache = new Map();
 const E = {};
 ['fromLbl','fromChap','openToc','openToc2','dlgToc','tocMeta','tocPos','tocPosOut','tocGo','tocList','lookChip',
  'spd','noStopBtn','openWords','openWords2','focusBtn','turbo','sumOrig','dlgWords','wfMeta','wfSort','wfUnit','wfStop','wfFilter','wfList','wfClear',
- 'start','reader','input','file','go','goProgram','goProgram2','count','fromPageBox','fromPage','recent','recentList','allTexts','ocrLink','histTabs','libBody','notes','closeNotes','noteQuote','noteText','noteSave','noteList','noteCopy','noteDownload','openNotes','openNotes2','ticks',
+ 'start','reader','input','file','go','goProgram','goProgram2','count','fromPageBox','fromPage','recent','recentList','allTexts','appendBtn','markBtn','noteFilter','openAppend','dlgAppend','appendMeta','appendText','appendFile','appendGo','ocrLink','histTabs','libBody','notes','closeNotes','noteQuote','noteText','noteSave','noteList','noteCopy','noteDownload','openNotes','openNotes2','ticks',
  'bar','toStart','wpmOut','clock','play','stop','openSettings','stage','text','under','guides','band','body','over',
  'mTop','mBot','pen','dot','flag','rsvp','progress','fill','etaMore','etaPct','etaLeft','etaTotal','banner','skipPick','toast','settings','closeSettings',
  'dlgSummary','sumTitle','sumWpm','sumWords','sumTime','sumTargetLbl','sumTarget','sumRecall','sumComp','sumCompOut','sumEff','sumDiscard','sumUse','sumSave',
@@ -971,8 +999,21 @@ function joinLines(lines) {
   return out;
 }
 const PARA_END = /[.!?:»”"')\]]$/;
+/* Citation lines that e-book platforms add to copied text and downloaded pages (ProQuest Ebook Central). */
+const VENDOR_LINE = /ProQuest Ebook Central|ebookcentral\.proquest\.com|^\s*central\.proquest\.com|^\s*Created from \S+ on \d{4}-\d{2}-\d{2}|^\s*Copyright\s*©\s*\d{4}\b.*All rights reserved\.?\s*$/i;
+function vendorDrop(texts) {
+  const drop = new Set();
+  texts.forEach((t, i) => {
+    if (!VENDOR_LINE.test(t)) return;
+    drop.add(i);
+    // author and title of the citation often sit on the line before
+    if (/^\s*ProQuest Ebook Central/i.test(t) && i > 0 && /\b(1[89]|20)\d\d\.?\s*$/.test(texts[i - 1]) && texts[i - 1].length < 220) drop.add(i - 1);
+  });
+  return drop;
+}
 function parsePlain(raw) {
-  const t = raw.replace(/\r\n?/g, '\n').replace(/[​‌‍﻿]/g, '').replace(/[\t ]/g, ' ');
+  let t = raw.replace(/\r\n?/g, '\n').replace(/[​‌‍﻿]/g, '').replace(/[\t ]/g, ' ');
+  { const ls = t.split('\n'), d = vendorDrop(ls); if (d.size) t = ls.filter((_, i) => !d.has(i)).join('\n'); }
   let blocks;
   if (/\n[ ]*\n/.test(t)) blocks = t.split(/\n[ ]*\n+/).map(b => joinLines(b.split('\n')));
   else {
@@ -1104,7 +1145,8 @@ async function readPdf(file, onPage) {
     onPage(n, pdf.numPages);
     const page = await pdf.getPage(n);
     const tc = await page.getTextContent();
-    pages.push(pageLines(tc.items));
+    const ls = pageLines(tc.items), drop = vendorDrop(ls.map(l => l.text));
+    pages.push(drop.size ? ls.filter((_, i) => !drop.has(i)) : ls);
     page.cleanup();
   }
   try { await task.destroy(); } catch (e) {}
@@ -1227,6 +1269,7 @@ async function readEpub(file, onChapter) {
 /* ================= start screen ================= */
 let pending = null;
 function updateCount() {
+  refreshAppendBtn();
   if (pending) {
     E.count.textContent = `${fmtInt(pending.words)} ord, ${pending.pageStarts.length} ${pending.pageLabel === 'kapitel' ? 'kapitler' : 'sider'}`;
   } else {
@@ -1307,9 +1350,17 @@ window.addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth =
 window.addEventListener('dragover', e => e.preventDefault());
 window.addEventListener('drop', e => {
   e.preventDefault(); dragDepth = 0; document.body.classList.remove('dragging');
-  if (document.body.dataset.view !== 'start') return;
   const f = e.dataTransfer && e.dataTransfer.files[0];
+  if (document.body.dataset.view === 'reader') { if (f && !document.querySelector('dialog[open]')) appendFile(f); return; }
   if (f) handleFile(f);
+});
+document.addEventListener('paste', e => {
+  if (document.body.dataset.view !== 'reader' || document.querySelector('dialog[open]')) return;
+  if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) return;
+  const cd = e.clipboardData; if (!cd) return;
+  const f = cd.files && cd.files[0], t = cd.getData('text/plain');
+  if (f && !/^image\//.test(f.type)) { e.preventDefault(); appendFile(f); }
+  else if (t && t.trim()) { e.preventDefault(); appendText(t); }
 });
 
 
@@ -1438,6 +1489,95 @@ function docLine(m) {
   const left = Math.max(0, m.words - (m.pos || 0)), mins = Math.round(left / settings.wpm);
   return { pct, text: [`${pct} % læst`, `${fmtInt(m.words)} ord`, pct < 99 ? `ca. ${mins < 1 ? 'under 1' : mins} min tilbage` : 'færdig', m.notes ? `${m.notes} ${m.notes === 1 ? 'note' : 'noter'}` : '', ago(m.opened)].filter(Boolean).join(', ') };
 }
+/* ================= adding text to a book =================
+   Pages copied one at a time (or chapter PDFs) are put after the end of a text in the library.
+   Each addition becomes a new page, so the contents list and the notes keep their places. */
+const countWords = ps => ps.reduce((a, p) => a + p.split(/\s+/).filter(Boolean).length, 0);
+let latestDoc = null;
+async function appendDoc(id, d) {
+  const meta = await DB.get('docs', id), t = await DB.get('texts', id);
+  if (!meta || !t) throw new Error('missing');
+  const paras = (d.paragraphs || []).filter(p => p && p.trim()), n = countWords(paras);
+  if (!n) return null;
+  const flat = x => x.join(' ').replace(/\s+/g, ' ').trim();
+  const addText = flat(paras), have = flat(t.paragraphs);
+  if (addText.length > 30 && have.endsWith(addText)) return { dup: true };
+  const base = countWords(t.paragraphs), ps = t.pageStarts && t.pageStarts.length ? t.pageStarts.slice() : [0], nBase = ps.length;
+  const aps = d.pageStarts && d.pageStarts.length ? d.pageStarts : [0];
+  aps.forEach(x => ps.push(base + x));
+  if (t.pageTitles || d.pageTitles || d.title) {
+    const ti = (t.pageTitles || []).slice(0, nBase); while (ti.length < nBase) ti.push('');
+    aps.forEach((x, k) => ti.push((d.pageTitles && d.pageTitles[k]) || (k === 0 && d.title) || ''));
+    t.pageTitles = ti.some(Boolean) ? ti : null;
+  }
+  if (t.pageNums || d.pageNums) {
+    const nu = (t.pageNums || []).slice(0, nBase); while (nu.length < nBase) nu.push('');
+    aps.forEach((x, k) => nu.push((d.pageNums && d.pageNums[k]) || ''));
+    t.pageNums = nu;
+  }
+  t.paragraphs = t.paragraphs.concat(paras); t.pageStarts = ps;
+  meta.words = base + n; meta.pages = ps.length; meta.opened = Date.now();
+  await DB.put('texts', t); await DB.put('docs', meta);
+  return { meta, t, at: base, n, page: nBase + 1 };
+}
+async function appendInto(id, d, curPos) {
+  if (!(await idbReady)) { toast('Browseren tillader ikke, at Ψ-reader gemmer tekster her.'); return false; }
+  let r;
+  try { r = await appendDoc(id, d); } catch (e) { toast('Teksten kunne ikke tilføjes.'); return false; }
+  if (!r) { toast('Der var ingen tekst at tilføje.'); return false; }
+  if (r.dup) { toast('Den tekst ligger allerede sidst i bogen.', 2600); return false; }
+  // continue in the new part if you had read to the end of the old one
+  const pos = curPos == null || curPos >= r.at - 25 ? r.at : curPos;
+  S.meta = r.meta; S.docId = id;
+  openReader(makeDoc(Object.assign({ title: r.meta.title }, r.t)), pos);
+  loadNotes();
+  toast(`Tilføjet ${fmtInt(r.n)} ord som side ${r.page}.`, 2400);
+  return true;
+}
+function appendText(t) { return appendHere({ title: '', paragraphs: parsePlain(t), pageStarts: [] }); }
+async function appendHere(d) {
+  if (!S.full) return false;
+  if (!S.docId) { toast('Eksempelteksten kan ikke udvides. Indsæt din egen tekst på forsiden først.', 3500); return false; }
+  pause();
+  return appendInto(S.docId, d, origPos(S.pos));
+}
+async function readAnyFile(f) {
+  const isPdf = /\.pdf$/i.test(f.name) || f.type === 'application/pdf', isEpub = /\.epub$/i.test(f.name) || f.type === 'application/epub+zip';
+  if (isPdf) return readPdf(f, () => {});
+  if (isEpub) return readEpub(f, () => {});
+  return { title: f.name.replace(/\.(txt|md|text)$/i, ''), paragraphs: parsePlain(await f.text()), pageStarts: [] };
+}
+async function appendFile(f) {
+  if (!S.docId) { toast('Eksempelteksten kan ikke udvides. Åbn din egen tekst først.', 3500); return false; }
+  toast(`Læser ${f.name} …`, 8000);
+  let d;
+  try { d = await readAnyFile(f); } catch (e) { toast('Filen kunne ikke læses.'); return false; }
+  if ((d.words != null ? d.words : countWords(d.paragraphs)) < 20) { toast('Filen har ingen tekst. Er den scannet, så kør den gennem Ψ-OCR først.', 5000); return false; }
+  return appendHere(d);
+}
+function shortTitle(t, n = 28) { return t.length > n ? t.slice(0, n - 1).trimEnd() + '…' : t; }
+function refreshAppendBtn() {
+  const has = !!pending || (E.input.value.match(/\S+/g) || []).length >= 3;
+  E.appendBtn.hidden = !(latestDoc && has);
+  if (latestDoc) { E.appendBtn.textContent = `Tilføj til «${shortTitle(latestDoc.title)}»`; E.appendBtn.title = `Læg teksten sidst i «${latestDoc.title}» som en ny side`; }
+}
+E.appendBtn.addEventListener('click', async () => {
+  if (!latestDoc) return;
+  const d = pending || { title: '', paragraphs: parsePlain(E.input.value), pageStarts: [] };
+  const ok = await appendInto(latestDoc.id, d, latestDoc.pos || 0);
+  if (ok) { E.input.value = ''; delete E.input.dataset.title; pending = null; E.fromPageBox.hidden = true; updateCount(); }
+});
+E.openAppend.addEventListener('click', () => {
+  E.settings.classList.remove('open'); pause();
+  if (!S.docId) { toast('Eksempelteksten kan ikke udvides. Indsæt din egen tekst på forsiden først.', 3500); return; }
+  E.appendMeta.textContent = `Lægges sidst i «${S.full.title}» som side ${Math.max(1, S.full.pageStarts.length) + 1}.`;
+  E.appendText.value = ''; E.appendGo.disabled = true;
+  E.dlgAppend.showModal(); setTimeout(() => E.appendText.focus(), 50);
+});
+E.appendText.addEventListener('input', () => { E.appendGo.disabled = !E.appendText.value.trim(); });
+E.appendGo.addEventListener('click', () => { const t = E.appendText.value; E.dlgAppend.close(); appendText(t); });
+E.appendFile.addEventListener('change', () => { const f = E.appendFile.files[0]; E.appendFile.value = ''; if (f) { E.dlgAppend.close(); appendFile(f); } });
+
 async function showResume() {
   if (!(await idbReady)) {
     // older single-text fallback
@@ -1448,6 +1588,7 @@ async function showResume() {
     E.allTexts.hidden = true; E.recent.hidden = false; return;
   }
   const docs = (await DB.all('docs').catch(() => [])).sort((a, b) => b.opened - a.opened);
+  latestDoc = docs[0] || null; refreshAppendBtn();
   // move an old single text into the library once
   if (!docs.length && store.get('doc', null)) {
     const d = store.get('doc', null), words = d.paragraphs.reduce((a, p) => a + p.split(/\s+/).filter(Boolean).length, 0);
@@ -1490,15 +1631,58 @@ async function loadNotes() {
   renderNotes(); drawTicks();
 }
 function drawTicks() {
+  paintNoteBars();
   if (!S.full || !S.words.length) { E.ticks.innerHTML = ''; return; }
   const n = S.words.length;
-  E.ticks.innerHTML = S.notes.map(x => `<i style="left:${(100 * toActive(x.pos) / Math.max(1, n - 1)).toFixed(2)}%"></i>`).join('');
+  E.ticks.innerHTML = S.notes.map(x => `<i${x.kind === 'mark' ? ' class="m"' : ''} style="left:${(100 * toActive(x.pos) / Math.max(1, n - 1)).toFixed(2)}%"></i>`).join('');
 }
+// a thin bar in the margin of every paragraph that has a note or a mark
+function paintNoteBars() {
+  for (const p of E.body.querySelectorAll('p.has-note, p.has-mark')) p.classList.remove('has-note', 'has-mark');
+  if (!S.words.length || !S.paras.length) return;
+  for (const x of S.notes) {
+    const el = E.body.querySelector(`p[data-p="${paraOf(clamp(toActive(x.pos), 0, S.words.length - 1))}"]`);
+    if (el) el.classList.add(x.kind === 'mark' ? 'has-mark' : 'has-note');
+  }
+}
+async function removeNote(id) {
+  await DB.del('notes', id).catch(() => {});
+  S.notes = S.notes.filter(x => x.id !== id);
+  if (S.meta) { S.meta.notes = S.notes.length; DB.put('docs', S.meta).catch(() => {}); }
+  renderNotes(); drawTicks();
+}
+const nearMark = o => S.notes.find(x => x.kind === 'mark' && Math.abs(x.pos - o) <= 12);
+// Mark the place you are reading with one key, without stopping. Pressing again nearby removes it.
+async function toggleMark() {
+  if (!S.full || !S.words.length) return;
+  if (!S.docId || !IDB) { toast('Markeringer gemmes kun for dine egne tekster, ikke eksempelteksten.', 2600); return; }
+  const o = origPos(S.pos), near = nearMark(o);
+  E.markBtn.classList.remove('pulse'); void E.markBtn.offsetWidth; E.markBtn.classList.add('pulse');
+  if (near) { await removeNote(near.id); toast('Markering fjernet', 900); return; }
+  const n = { id: nid(), docId: S.docId, pos: o, quote: quoteAt(o), text: '', kind: 'mark', created: Date.now() };
+  await DB.put('notes', n);
+  S.notes.push(n); S.notes.sort((a, b) => a.pos - b.pos);
+  if (S.meta) { S.meta.notes = S.notes.length; DB.put('docs', S.meta).catch(() => {}); }
+  renderNotes(); drawTicks();
+  toast('Markeret', 900);
+}
+function jumpNote(d) {
+  if (!S.notes.length) { toast('Ingen markeringer eller noter endnu. Tryk H for at markere.', 2000); return; }
+  const cur = origPos(S.pos), ps = S.notes.map(x => x.pos);
+  const t = d > 0 ? ps.find(p => p > cur + 2) : [...ps].reverse().find(p => p < cur - 2);
+  if (t == null) { toast(d > 0 ? 'Ingen flere markeringer længere fremme.' : 'Ingen markeringer før dette sted.', 1500); return; }
+  jumpTo(toActive(t));
+}
+E.markBtn.addEventListener('click', e => { if (e.detail) E.markBtn.blur(); toggleMark(); });
+let noteFilter = 'all';
+E.noteFilter.addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (!b) return; noteFilter = b.dataset.v; $$('button', E.noteFilter).forEach(x => x.setAttribute('aria-pressed', String(x === b))); renderNotes(); });
 function renderNotes() {
-  if (!S.docId) { E.noteList.innerHTML = '<li class="empty">Noter gemmes for tekster i historikken. Eksempelteksten gemmes ikke.</li>'; return; }
-  if (!S.notes.length) { E.noteList.innerHTML = '<li class="empty">Ingen noter endnu. Skriv en ovenfor, eller tryk M, mens du læser.</li>'; return; }
+  E.noteFilter.hidden = !S.notes.some(x => x.kind === 'mark') || !S.notes.some(x => x.kind !== 'mark');
+  if (!S.docId) { E.noteList.innerHTML = '<li class="empty">Noter og markeringer gemmes for dine egne tekster. Eksempelteksten gemmes ikke.</li>'; return; }
+  if (!S.notes.length) { E.noteList.innerHTML = '<li class="empty">Ingen noter endnu. Skriv en ovenfor, tryk M for en note eller H for en hurtig markering, mens du læser.</li>'; return; }
   const df = new Intl.DateTimeFormat('da-DK', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-  E.noteList.innerHTML = S.notes.map(x => `<li data-id="${x.id}"><div class="nh"><b>${esc(placeLabel(x.pos))}</b>${x.kind === 'recall' ? '<span>genkaldelse</span>' : ''}<span class="sp"></span><span>${df.format(x.created)}</span><button data-act="go">Gå hertil</button><button data-act="del">Slet</button></div>${x.quote ? `<p class="q">${esc(x.quote)}</p>` : ''}<p class="t">${esc(x.text)}</p></li>`).join('');
+  const list = E.noteFilter.hidden || noteFilter === 'all' ? S.notes : S.notes.filter(x => (x.kind === 'mark') === (noteFilter === 'mark'));
+  E.noteList.innerHTML = list.map(x => `<li data-id="${x.id}"><div class="nh"><b>${esc(placeLabel(x.pos))}</b>${x.kind === 'recall' ? '<span>genkaldelse</span>' : x.kind === 'mark' ? '<span class="tag">markering</span>' : ''}<span class="sp"></span><span>${df.format(x.created)}</span><button data-act="go">Gå hertil</button><button data-act="del">Slet</button></div>${x.quote ? `<p class="q">${esc(x.quote)}</p>` : ''}${x.text ? `<p class="t">${esc(x.text)}</p>` : ''}</li>`).join('');
 }
 function openNotes(focus) {
   if (!S.full) return;
@@ -1513,7 +1697,8 @@ function closeNotes() { E.notes.classList.remove('open'); if (document.activeEle
 async function addNote(text, kind) {
   text = (text || '').trim(); if (!text) return false;
   if (!S.docId || !IDB) { toast('Noter kan ikke gemmes her. Åbn teksten fra din egen enhed eller fra GitHub-adressen.'); return false; }
-  const o = origPos(S.pos);
+  const o = origPos(S.pos), near = kind === 'recall' ? null : nearMark(o);
+  if (near) { await DB.del('notes', near.id).catch(() => {}); S.notes = S.notes.filter(x => x !== near); }
   const n = { id: nid(), docId: S.docId, pos: o, quote: kind === 'recall' ? '' : quoteAt(o), text, kind: kind || 'note', created: Date.now() };
   await DB.put('notes', n);
   S.notes.push(n); S.notes.sort((a, b) => a.pos - b.pos);
@@ -1529,16 +1714,13 @@ E.noteList.addEventListener('click', async e => {
   if (b.dataset.act === 'go') { jumpTo(toActive(n.pos)); closeNotes(); return; }
   if (b.dataset.act === 'del') {
     if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = 'Slet?'; setTimeout(() => { if (b.isConnected) { delete b.dataset.armed; b.textContent = 'Slet'; } }, 3000); return; }
-    await DB.del('notes', id).catch(() => {});
-    S.notes = S.notes.filter(x => x.id !== id);
-    if (S.meta) { S.meta.notes = S.notes.length; DB.put('docs', S.meta).catch(() => {}); }
-    renderNotes(); drawTicks();
+    await removeNote(id);
   }
 });
 function notesMarkdown() {
   const title = S.full ? S.full.title : '';
   let md = `# Noter: ${title}\n\n`;
-  for (const x of S.notes) md += `## ${placeLabel(x.pos)}${x.kind === 'recall' ? ' (genkaldelse)' : ''}\n\n${x.quote ? '> ' + x.quote + '\n\n' : ''}${x.text}\n\n`;
+  for (const x of S.notes) md += `## ${placeLabel(x.pos)}${x.kind === 'recall' ? ' (genkaldelse)' : x.kind === 'mark' ? ' (markering)' : ''}\n\n${x.quote ? '> ' + x.quote + '\n\n' : ''}${x.text ? x.text + '\n\n' : ''}`;
   return md;
 }
 E.noteCopy.addEventListener('click', async () => {
@@ -1875,6 +2057,7 @@ function renderText() {
   E.body.innerHTML = out.join('');
   S.W = Array.from(E.body.getElementsByClassName('w'));
   lineCache.clear();
+  if (S.notes) paintNoteBars();
 }
 function paraOf(i) {
   const P = S.paras; let lo = 0, hi = P.length - 1;
@@ -2734,6 +2917,9 @@ document.addEventListener('keydown', e => {
   else if (k === 'n' || k === 'N') openWords();
   else if (k === 'i' || k === 'I') openToc();
   else if (k === 'm' || k === 'M') { e.preventDefault(); openNotes(true); }
+  else if (k === 'h' || k === 'H') { if (!e.repeat) toggleMark(); }
+  else if (k === ',') jumpNote(-1);
+  else if (k === '.') jumpNote(1);
   else if (k === '+' || k === '=') fontStep(1);
   else if (k === '-') fontStep(-1);
   else if (k === 'Enter') { if (S.session) finish('stop'); }
