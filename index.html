@@ -566,6 +566,8 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
     <div class="row" data-show="prog=sprint"><label for="s-sx">Sprinttempo</label><span class="ctl"><input id="s-sx" type="range" data-key="sprintX" min="1.25" max="3" step="0.25"><output data-out="sprintX"></output></span></div>
     <p class="hint" data-show="prog=sprint">20 sekunder i sprinttempo, derefter 40 sekunder i dit normale tempo. At træne over dit komfortable tempo gør det normale tempo lettere bagefter.</p>
     <div class="row"><label for="s-pp">Lille pause efter afsnit</label><input id="s-pp" type="checkbox" class="switch" data-key="paraPause"></div>
+    <div class="row"><label for="s-sp">Kort pause ved punktum</label><input id="s-sp" type="checkbox" class="switch" data-key="sentPause"></div>
+    <p class="hint">Gælder fikspunkter og fraser. Læsere dvæler naturligt lidt ved slutningen af en sætning, mens de samler meningen. Pausen kommer altid samme sted i teksten, så takten forbliver forudsigelig.</p>
   </section>
 
   <section class="sec" data-for="pacer">
@@ -950,7 +952,7 @@ const store = {
 };
 
 const DEF = {
-  mode: 'pacer', wpm: 300, timer: 5, prog: 'const', ramp: 20, sprintX: 1.5, paraPause: true,
+  mode: 'pacer', wpm: 300, timer: 5, prog: 'const', ramp: 20, sprintX: 1.5, paraPause: true, sentPause: true,
   pacerStyle: 'pen', inset: 0, fixN: 2, fixLines: true, fixMark: 'dot', chunkN: 3,
   rsvpN: 1, orp: true, punct: true, dim: 30,
   theme: 'light', font: 'serif', fs: 21, lh: 1.7, measure: 62, justify: false, eta: true,
@@ -2169,8 +2171,14 @@ function timeUnit(u) {
   let d = u.n * per;
   // Fixation points keep an even rhythm: each column gets the same time, so a typical
   // full line takes as long as its words at the chosen speed.
-  if (cfg('mode') === 'fix' && u.span != null) d = u.span * wordsPerLine(u.p) / cfg('fixN') * per;
+  const mode = cfg('mode');
+  if (mode === 'fix' && u.span != null) d = u.span * wordsPerLine(u.p) / cfg('fixN') * per;
   u.move = d;
+  // A short, text-bound pause where a sentence ends (sentence wrap-up), never random.
+  if (cfg('sentPause') && !u.paraEnd && (mode === 'fix' || mode === 'chunk')) {
+    let end = false; for (let i = u.start; i < u.end; i++) if (SENT_END.test(S.words[i])) { end = true; break; }
+    if (end) d += mode === 'fix' ? d / Math.max(0.25, u.span || 1) * 0.3 : per * 0.8;
+  }
   if (cfg('mode') === 'rsvp') {
     const last = S.words[u.end - 1];
     if (cfg('punct')) { if (SENT_END.test(last)) d += per * 1.2; else if (SOFT_END.test(last)) d += per * 0.5; }
@@ -2767,6 +2775,8 @@ function minutesFor(words, paras) {
   const w = etaWpm();
   let min = words / w;
   if (cfg('paraPause') && cfg('mode') !== 'free') min += paras * 1.5 / w;
+  const m = cfg('mode');
+  if (cfg('sentPause') && (m === 'fix' || m === 'chunk')) min += words / 16 * (m === 'fix' ? 1.5 : 0.8) / w;   // about one sentence per 16 words
   return min;
 }
 function fmtDur(min) {
@@ -2890,7 +2900,7 @@ document.addEventListener('fullscreenchange', () => { if (!document.fullscreenEl
 E.focusBtn.addEventListener('click', e => { if (e.detail) E.focusBtn.blur(); setFocus(!S.focus); });
 E.noStopBtn.addEventListener('click', e => { if (e.detail) E.noStopBtn.blur(); toggleNoStop(!settings.nostop); });
 E.turbo.addEventListener('click', () => {
-  Object.assign(settings, { mode: 'pacer', pacerStyle: 'none', scroll: 'smooth', measure: 110, justify: false, paraPause: false, dim: Math.max(settings.dim, 25) });
+  Object.assign(settings, { mode: 'pacer', pacerStyle: 'none', scroll: 'smooth', measure: 110, justify: false, paraPause: false, sentPause: false, dim: Math.max(settings.dim, 25) });
   ['mode', 'pacerStyle', 'scroll'].forEach(k => delete S.override[k]);
   E.settings.classList.remove('open');
   toggleNoStop(true);
