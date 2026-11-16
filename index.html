@@ -750,6 +750,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
     <p>Freeware: må bruges, kopieres og deles gratis.</p>
     <p class="muted" style="font-size:14px">PDF-læsning med pdf.js fra Mozilla (Apache 2.0-licens). Ordbogsopslag via Free Dictionary API med data fra Wiktionary (CC BY-SA). Kilderne til eksempelteksten står under Om teknikkerne.</p>
     <p class="muted" style="font-size:14px">Tekstgenkendelsen (Ψ-OCR) bruger Tesseract via tesseract.js (Apache 2.0), pdf-lib (MIT) og UTIF.js (MIT).</p>
+    <p class="muted" style="font-size:13px">Version 16.11.2026 kl. 06.02</p>
     <p class="muted" style="font-size:14px">Hent filen eller se koden: <a href="https://github.com/DAKI2501/reader" target="_blank" rel="noopener">github.com/DAKI2501/reader</a></p>
     <div class="actions"><button class="primary" data-close>Luk</button></div>
   </div>
@@ -2158,12 +2159,13 @@ function computeUnit(pos) {
   return u;
 }
 // Words on a typical full line near the reading position, for the steady beat in fixation mode.
+// Measured once per layout, so the beat does not drift from paragraph to paragraph.
 function wordsPerLine(p) {
-  if (S.wpl && S.wpl.p0 <= p && p <= S.wpl.p1) return S.wpl.v;
-  const p0 = Math.max(0, p - 12), p1 = Math.min(S.paras.length - 1, p + 12), n = [];
+  if (S.wpl) return S.wpl.v;
+  const p0 = Math.max(0, p - 25), p1 = Math.min(S.paras.length - 1, p + 25), n = [];
   for (let q = p0; q <= p1; q++) { const ls = getLines(q); for (let i = 0; i < ls.length - 1; i++) n.push(ls[i].end - ls[i].start); }
   const v = n.length >= 3 ? median(n) : Math.max(3, S.textW / ((S.charW || 9) * 6.3));
-  S.wpl = { p0: Math.max(0, p - 6), p1: Math.min(S.paras.length - 1, p + 6), v };
+  S.wpl = { v };
   return v;
 }
 function timeUnit(u) {
