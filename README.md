@@ -1,4 +1,4 @@
-# Ψ-reader (Psy-reader) – træn hurtiglæsning
+# Reader – træn hurtiglæsning
 
 Et studieredskab til hurtiglæsning i én enkelt HTML-fil: træn din læsehastighed, eller stream en lang tekst på telefonen. Den kører i browseren, også uden internet, og gemmer intet andre steder end på din egen enhed.
 
@@ -20,7 +20,7 @@ På telefonen kan den lægges på hjemmeskærmen (iPhone: Safari → Del → Fø
 
 ## Ψ-OCR – tekstgenkendelse
 
-**Åbn den her:** https://daki2501.github.io/reader/ocr.html (eller via menuen i Ψ-reader)
+**Åbn den her:** https://daki2501.github.io/reader/ocr.html (eller via menuen i Reader)
 
 Gør scannede bøger, fotos af sider og skærmbilleder til tekst på dansk og engelsk. Alt sker i browseren; filerne forlader ikke din enhed.
 
@@ -28,7 +28,7 @@ Gør scannede bøger, fotos af sider og skærmbilleder til tekst på dansk og en
 - **Retter siderne op:** finder selv sider, der ligger ned eller står på hovedet, retter skæve scanninger, fjerner mørke kanter og skygger og deler opslag med to sider.
 - **Rydder teksten op:** fjerner sidetal og gentagne sidehoveder, samler orddeling ved linjeskift, finder overskrifter og fodnoter, samler afsnit hen over sideskift og husker bogens egne sidetal.
 - **Korrektur:** se hver side ved siden af teksten med usikre ord understreget, og ret direkte. Drej en side selv, hvis det automatiske valg er forkert.
-- **Resultat:** læs direkte i Ψ-reader, eller hent en søgbar PDF, en e-bog (EPUB) med sidetal eller ren tekst.
+- **Resultat:** læs direkte i Reader, eller hent en søgbar PDF, en e-bog (EPUB) med sidetal eller ren tekst.
 
 Første gang hentes sprogmodellerne (ca. 8 MB); derefter virker Ψ-OCR også uden internet.
 

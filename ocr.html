@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-  Ψ-OCR – tekstgenkendelse til Ψ-reader
+  Ψ-OCR – tekstgenkendelse til Reader
   Lavet af DAKI2501 og Claude (Anthropic), 2026. Freeware.
   Bygger på Tesseract (tesseract.js), pdf.js, pdf-lib og UTIF.js. Licenser: ocr/LICENSES.txt
 -->
@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="description" content="Ψ-OCR: gør scannede sider, fotos og PDF'er til tekst på dansk og engelsk. Retter skæve og vendte sider, deler opslag og laver søgbar PDF, e-bog eller tekst til Ψ-reader. Kører i browseren.">
+<meta name="description" content="Ψ-OCR: gør scannede sider, fotos og PDF'er til tekst på dansk og engelsk. Retter skæve og vendte sider, deler opslag og laver søgbar PDF, e-bog eller tekst til Reader. Kører i browseren.">
 <title>Ψ-OCR – tekstgenkendelse</title>
 <style>
 :root{
@@ -171,12 +171,12 @@ dialog::backdrop{background:rgba(20,24,28,.45)}
 <div class="wrap">
   <header class="top">
     <div class="mark">Ψ-OCR</div>
-    <a class="back textbtn" href="./" id="backLink">Til Ψ-reader</a>
+    <a class="back textbtn" href="./" id="backLink">Til Reader</a>
   </header>
 
   <section class="intro">
     <h1>Tekstgenkendelse</h1>
-    <p class="sub">Gør scannede sider og fotos af tekst til tekst, du kan læse i Ψ-reader, søge i og kopiere. Det hele sker i din browser; filerne forlader ikke din enhed.</p>
+    <p class="sub">Gør scannede sider og fotos af tekst til tekst, du kan læse i Reader, søge i og kopiere. Det hele sker i din browser; filerne forlader ikke din enhed.</p>
 
     <div id="drop" tabindex="-1">
       <h2 id="dropTitle">Slip scannede sider her</h2>
@@ -230,7 +230,7 @@ dialog::backdrop{background:rgba(20,24,28,.45)}
 <div id="exportbar" hidden>
   <div class="in">
     <span class="note" id="expNote"></span>
-    <button class="primary" id="toReader">Læs i Ψ-reader</button>
+    <button class="primary" id="toReader">Læs i Reader</button>
     <button class="ghost" id="dlPdf">Søgbar PDF</button>
     <button class="ghost" id="dlEpub">E-bog</button>
     <button class="ghost" id="dlTxt">Tekst</button>

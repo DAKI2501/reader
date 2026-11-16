@@ -1,5 +1,5 @@
-// Ψ-reader – service worker: keeps the app on the device so it starts offline.
-// Pages (Ψ-reader and Ψ-OCR) are fetched fresh when there is a connection, so a new
+// Reader – service worker: keeps the app on the device so it starts offline.
+// Pages (Reader and Ψ-OCR) are fetched fresh when there is a connection, so a new
 // version shows up the next time the app is opened; without a connection the stored
 // copy is used. Other files are served from the store and refreshed in the background.
 // Ψ-OCR's program files and language models (ocr/…) are stored the first time they are used.
@@ -12,7 +12,7 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
-const offline = () => new Response('Ψ-reader er offline, og siden er ikke gemt endnu.', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+const offline = () => new Response('Reader er offline, og siden er ikke gemt endnu.', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
 self.addEventListener('fetch', e => {
   const req = e.request, url = new URL(req.url);
   if (req.method !== 'GET' || url.origin !== location.origin) return; // dictionary look-ups go straight to the network

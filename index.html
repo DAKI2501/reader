@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-  Ψ-reader (Psy-reader) – træn hurtiglæsning
+  Reader – træn hurtiglæsning
   Lavet af DAKI2501 og Claude (Anthropic), 2026.
   Freeware: må bruges, kopieres og deles gratis.
   Indeholder pdf.js © Mozilla Foundation, Apache License 2.0 (licensnoten står i pdf.js-koden længere nede).
@@ -16,11 +16,11 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Ψ-reader">
-<meta name="description" content="Psy-reader: træn hurtiglæsning og stream lange tekster. Pacer, fikspunkter, RSVP, jævn rulning, nøgleord, PDF og EPUB. Gratis.">
-<meta property="og:title" content="Ψ-reader – træn hurtiglæsning">
+<meta name="apple-mobile-web-app-title" content="Reader">
+<meta name="description" content="Reader: træn hurtiglæsning og stream lange tekster. Pacer, fikspunkter, RSVP, jævn rulning, nøgleord, PDF og EPUB. Gratis.">
+<meta property="og:title" content="Reader – træn hurtiglæsning">
 <meta property="og:description" content="Gratis studieredskab til hurtiglæsning. Læser tekst, PDF og EPUB, også på telefonen.">
-<title>Ψ-reader – træn hurtiglæsning</title>
+<title>Reader – træn hurtiglæsning</title>
 <style>
 :root{
   --paper:#ECEEEA; --ink:#1C2126; --muted:#66706B; --faint:#A7AEA9; --rule:#D2D7D1; --panel:#F5F6F3;
@@ -76,7 +76,7 @@ body[data-view=start] #reader,body[data-view=reader] #start{display:none}
 .menu button{border:0;background:transparent;text-align:left;padding:10px 12px;border-radius:8px;font-size:15px}
 .menu button:hover{background:var(--accent-soft)}
 .menu button:disabled{opacity:.4;cursor:default}
-.intake{width:100%;max-width:860px;margin-top:8vh}
+.intake{width:100%;max-width:860px;margin-top:6vh}
 .intake h1{font:500 clamp(30px,4.4vw,46px)/1.08 var(--serif);margin:0 0 10px;letter-spacing:-.012em}
 .intake .sub{color:var(--muted);margin:0 0 22px;font-size:16px;max-width:52ch}
 .drop{position:relative;border-radius:12px;background:var(--panel);box-shadow:inset 0 0 0 1px var(--rule);transition:box-shadow .15s,background .15s}
@@ -421,12 +421,11 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
 <!-- ================= START ================= -->
 <main id="start">
   <header class="top">
-    <div class="mark">Ψ-reader</div>
+    <div class="mark">Reader</div>
     <div class="menuwrap">
       <button class="icon" id="menuBtn" aria-haspopup="true" aria-expanded="false" aria-controls="menu" aria-label="Menu" title="Menu"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
       <div class="menu" id="menu" hidden>
         <button id="goProgram" title="Seks trin på ca. 11 minutter: mål din hastighed, træn med pacer og indrykning i højt tempo, og mål igen.">Træningsprogram</button>
-        <button data-open="dlgSchulte">Opvarmning</button>
         <button data-open="dlgHistory">Historik og tekster</button>
         <a id="ocrLink" href="ocr.html">Tekstgenkendelse (OCR)</a>
         <button data-open="dlgHelp">Om teknikkerne</button>
@@ -435,11 +434,9 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
     </div>
   </header>
 
-  <div class="nojs" id="nojs">Denne visning kører ikke JavaScript, så Ψ-reader kan ikke starte. Det sker typisk, når en HTML-fil åbnes i telefonens filvisning eller i en forhåndsvisning. Åbn filen i en browser som Safari, Chrome eller Firefox i stedet.</div>
+  <div class="nojs" id="nojs">Denne visning kører ikke JavaScript, så Reader kan ikke starte. Det sker typisk, når en HTML-fil åbnes i telefonens filvisning eller i en forhåndsvisning. Åbn filen i en browser som Safari, Chrome eller Firefox i stedet.</div>
 
   <section class="intake">
-    <h1>Hvad vil du læse?</h1>
-    <p class="sub">Indsæt en tekst, eller slip en PDF, en e-bog (EPUB) eller en tekstfil her. Vælg teknik, tempo og tid, når du er inde i teksten.</p>
     <div class="drop">
       <textarea id="input" spellcheck="false" aria-label="Tekst. Er feltet tomt, læses eksempelteksten."></textarea>
       <div class="drop-hint">Slip filen for at indlæse den</div>
@@ -449,8 +446,9 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
       <label class="fromPage" id="fromPageBox" hidden><span id="fromLbl">Fra side</span> <input type="number" id="fromPage" min="1" value="1"><select id="fromChap" hidden></select></label>
       <span id="count"></span>
       <span class="grow"></span>
+      <button class="ghost" data-open="dlgSchulte" title="Schulte-tabel: find tallene i rækkefølge med blikket i midten">Opvarmning</button>
       <button class="ghost" id="appendBtn" hidden></button>
-      <button class="primary" id="go" disabled>Begynd at læse</button>
+      <button class="primary" id="go" disabled>Hajime</button>
     </div>
   </section>
 
@@ -746,11 +744,11 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
 <dialog id="dlgCredits">
   <div class="dlg">
     <h2>Credits</h2>
-    <p><b>Ψ-reader</b> (Psy-reader) er lavet af <a href="https://github.com/DAKI2501" target="_blank" rel="noopener">DAKI2501</a> og Claude, 2026.</p>
+    <p><b>Reader</b> er lavet af <a href="https://github.com/DAKI2501" target="_blank" rel="noopener">DAKI2501</a> og Claude, 2026.</p>
     <p>Freeware: må bruges, kopieres og deles gratis.</p>
     <p class="muted" style="font-size:14px">PDF-læsning med pdf.js fra Mozilla (Apache 2.0-licens). Ordbogsopslag via Free Dictionary API med data fra Wiktionary (CC BY-SA). Kilderne til eksempelteksten står under Om teknikkerne.</p>
     <p class="muted" style="font-size:14px">Tekstgenkendelsen (Ψ-OCR) bruger Tesseract via tesseract.js (Apache 2.0), pdf-lib (MIT) og UTIF.js (MIT).</p>
-    <p class="muted" style="font-size:13px">Version 16.11.2026 kl. 06.02</p>
+    <p class="muted" style="font-size:13px">Version 16.11.2026 kl. 07.54</p>
     <p class="muted" style="font-size:14px">Hent filen eller se koden: <a href="https://github.com/DAKI2501/reader" target="_blank" rel="noopener">github.com/DAKI2501/reader</a></p>
     <div class="actions"><button class="primary" data-close>Luk</button></div>
   </div>
@@ -1532,7 +1530,7 @@ async function appendDoc(id, d) {
   return { meta, t, at: base, n, page: nBase + 1 };
 }
 async function appendInto(id, d, curPos) {
-  if (!(await idbReady)) { toast('Browseren tillader ikke, at Ψ-reader gemmer tekster her.'); return false; }
+  if (!(await idbReady)) { toast('Browseren tillader ikke, at Reader gemmer tekster her.'); return false; }
   let r;
   try { r = await appendDoc(id, d); } catch (e) { toast('Teksten kunne ikke tilføjes.'); return false; }
   if (!r) { toast('Der var ingen tekst at tilføje.'); return false; }

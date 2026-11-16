@@ -1,4 +1,4 @@
-/* Ψ-OCR – tekstgenkendelse til Ψ-reader. DAKI2501 og Claude, 2026. Freeware.
+/* Ψ-OCR – tekstgenkendelse til Reader. DAKI2501 og Claude, 2026. Freeware.
    Pipeline per scanned page:
      rasterize → find orientation (0/90/180/270) and skew from projection profiles → split two-page spreads
      → render each page upright and straight → remove dark scan borders, even out the background
@@ -46,7 +46,7 @@ async function getPdfjs() {
   return pdfjs;
 }
 
-/* ================= storage shared with Ψ-reader ================= */
+/* ================= storage shared with Reader ================= */
 let dbp = null;
 function db() {
   return dbp || (dbp = new Promise((res, rej) => {
@@ -657,7 +657,7 @@ async function expandZip(f, name, depth) {
     if (/\.(pdf|tiff?)$/i.test(e.name)) await expand(sub, label, depth + 1);
     else addPage({ name: label, raster: () => rasterImage(sub, label) });
   }
-  if (!imgs.length && text.join('').trim().length <= 40) throw new Error(/\.epub$/i.test(name) ? 'e-bogen har ingen billeder af sider. Åbn den direkte i Ψ-reader.' : 'arkivet indeholder ingen billeder eller tekst.');
+  if (!imgs.length && text.join('').trim().length <= 40) throw new Error(/\.epub$/i.test(name) ? 'e-bogen har ingen billeder af sider. Åbn den direkte i Reader.' : 'arkivet indeholder ingen billeder eller tekst.');
 }
 function blockTexts(root) {
   const out = []; let buf = '';
@@ -918,7 +918,7 @@ $('#toReader').addEventListener('click', async () => {
   const d = readerDoc(); delete d.A;
   if (d.words < 2) { toast('Der er ingen tekst at læse.'); return; }
   try { await idb('readwrite', s => s.put({ key: 'toReader', doc: d, t: Date.now() })); location.href = './#from-ocr'; }
-  catch (e) { toast('Kunne ikke sende teksten til Ψ-reader. Hent den som e-bog eller tekst i stedet.', 6000); }
+  catch (e) { toast('Kunne ikke sende teksten til Reader. Hent den som e-bog eller tekst i stedet.', 6000); }
 });
 
 // --- EPUB 3 (stored ZIP, no compression needed) ---
