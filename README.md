@@ -10,7 +10,7 @@ På telefonen kan den lægges på hjemmeskærmen (iPhone: Safari → Del → Fø
 
 ## Hvad den kan
 
-- **Teknikker:** pacer med pen og indrykning, fikspunkter med lodrette streger, fraser, RSVP og fri læsning med måling af din hastighed.
+- **Teknikker:** pacer med pen og indrykning, fikspunkter med lodrette streger, fraser, RSVP, vandret strøm (én linje, der glider forbi i dit tempo) og fri læsning med måling af din hastighed.
 - **Tempo og tid:** skyder fra 50 til 2000 ord/min, timer, stigende tempo og sprint-intervaller, jævn rulning og tid tilbage.
 - **Tekster:** indsæt tekst, eller åbn PDF, EPUB eller tekstfiler. Kopibeskyttede e-bøger (DRM) kan ikke åbnes.
 - **Overblik:** nøgleord med ordpar, opslag i engelsk ordbog, tilstand uden stopord og indholdsfortegnelse for bøger.

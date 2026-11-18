@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Reader">
-<meta name="description" content="Reader: træn hurtiglæsning og stream lange tekster. Pacer, fikspunkter, RSVP, jævn rulning, nøgleord, PDF og EPUB. Gratis.">
+<meta name="description" content="Reader: træn hurtiglæsning og stream lange tekster. Pacer, fikspunkter, RSVP, vandret strøm, jævn rulning, nøgleord, PDF og EPUB. Gratis.">
 <meta property="og:title" content="Reader – træn hurtiglæsning">
 <meta property="og:description" content="Gratis studieredskab til hurtiglæsning. Læser tekst, PDF og EPUB, også på telefonen.">
 <title>Reader – træn hurtiglæsning</title>
@@ -118,7 +118,7 @@ body.dragging #input{opacity:.15}
 .bar .scrollseg,.bar .fixnseg{background:var(--panel);padding:3px;border-radius:9px;flex:none}
 .bar .scrollseg button{padding:4px 9px}
 .bar .scrollseg button[aria-pressed=true],.bar .fixnseg button[aria-pressed=true]{background:var(--paper);color:var(--ink);box-shadow:0 0 0 1px var(--rule)}
-body[data-mode=rsvp] .bar .scrollseg,body[data-mode=free] .bar .scrollseg{visibility:hidden}
+body[data-mode=rsvp] .bar .scrollseg,body[data-mode=stream] .bar .scrollseg,body[data-mode=free] .bar .scrollseg{visibility:hidden}
 .bar .markseg,.bar .fixnseg{display:none}
 body[data-mode=fix] .bar .markseg,body[data-mode=fix] .bar .fixnseg{display:inline-flex}
 .bar .fixnseg button{padding:4px 8px;font-variant-numeric:tabular-nums}
@@ -174,7 +174,7 @@ body[data-mode=free] .speed{visibility:hidden}
 body.playing .play .i-pause{display:block}
 .mid{flex:1;position:relative;min-height:0}
 #stage{position:absolute;inset:0;overflow:auto;padding:7vh 24px 45vh;overscroll-behavior:contain}
-body.playing.idle #stage{cursor:none}
+body.playing.idle #stage,body.playing.idle #stream{cursor:none}
 #text{position:relative;max-width:calc(var(--measure) * 1ch);margin:0 auto;font-family:var(--read);font-size:var(--fs);line-height:var(--lh);font-kerning:normal;text-rendering:optimizeLegibility}
 #body{position:relative;z-index:1;overflow-wrap:break-word}
 #body p{margin:0 0 calc(var(--lh) * .55em)}
@@ -208,6 +208,19 @@ body.picking #body .w:hover{background:var(--accent-soft);box-shadow:0 2px 0 var
 #rsvp.orp .rv-word .c{color:var(--accent)}
 .rv-help{position:absolute;left:0;right:0;top:calc(100% + 22px);text-align:center;color:var(--muted);font-size:13px}
 body.playing .rv-help{visibility:hidden}
+/* horizontal stream: one line glides past a fixed reading point */
+#stream{position:absolute;inset:0;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;padding:0 16px;--stAt:.33}
+.st-win{position:relative;width:100%;max-width:100%;padding:30px 0}
+.st-win::before,.st-win::after{content:"";position:absolute;left:0;right:0;height:1px;background:var(--rule)}
+.st-win::before{top:0}.st-win::after{bottom:0}
+.st-tick{position:absolute;left:calc(var(--stAt) * 100%);width:2px;margin-left:-1px;height:12px;border-radius:1px;background:var(--accent)}
+.st-tick.t{top:0}.st-tick.b{bottom:0}
+.st-view{position:relative;overflow:hidden;font-family:var(--read);font-size:calc(var(--fs) * 1.6);line-height:1.4;height:1.4em;font-kerning:normal;
+  -webkit-mask-image:linear-gradient(to right,transparent,rgba(0,0,0,calc(1 - var(--dimA))) 5%,rgba(0,0,0,calc(1 - var(--dimA))) calc(var(--stAt) * 100% - 1.2em),#000 calc(var(--stAt) * 100% - .15em),#000 93%,transparent);
+  mask-image:linear-gradient(to right,transparent,rgba(0,0,0,calc(1 - var(--dimA))) 5%,rgba(0,0,0,calc(1 - var(--dimA))) calc(var(--stAt) * 100% - 1.2em),#000 calc(var(--stAt) * 100% - .15em),#000 93%,transparent)}
+.st-track{position:absolute;left:0;top:0;white-space:pre;will-change:transform}
+.st-track .w.kw{background:linear-gradient(transparent 58%,var(--accent-soft) 58%)}
+.st-track .sep{color:var(--faint);padding:0 .35em}
 .progress{position:relative;height:30px;flex:none;cursor:pointer}
 .progress .track{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--rule);transition:height .15s}
 .progress:hover .track{height:6px}
@@ -284,7 +297,7 @@ body[data-eta=off] .eta{display:none}
 .ctl{display:flex;align-items:center;gap:8px}
 .ctl output{font-size:13px;color:var(--muted);min-width:4.5ch;text-align:right;font-variant-numeric:tabular-nums}
 [data-for]{display:none}
-body[data-mode=pacer] [data-for~=pacer],body[data-mode=fix] [data-for~=fix],body[data-mode=chunk] [data-for~=chunk],body[data-mode=rsvp] [data-for~=rsvp],body[data-mode=free] [data-for~=free]{display:block}
+body[data-mode=pacer] [data-for~=pacer],body[data-mode=fix] [data-for~=fix],body[data-mode=chunk] [data-for~=chunk],body[data-mode=rsvp] [data-for~=rsvp],body[data-mode=stream] [data-for~=stream],body[data-mode=free] [data-for~=free]{display:block}
 .checks{display:grid;grid-template-columns:1fr 1fr;gap:7px 12px;font-size:14px;margin:4px 0 10px}
 .checks label{display:flex;align-items:center;gap:8px}
 .checks input{accent-color:var(--accent);margin:0;width:15px;height:15px}
@@ -387,7 +400,7 @@ dialog::backdrop{background:rgba(18,22,26,.38)}
 .lookchip{position:fixed;z-index:25;border:0;border-radius:999px;background:var(--ink);color:var(--paper);padding:8px 14px;font-size:14px;box-shadow:0 10px 30px -10px rgba(0,0,0,.45)}
 .rv-help .touch{display:none}
 body{-webkit-tap-highlight-color:transparent}
-button,#stage,#rsvp,.progress{touch-action:manipulation}
+button,#stage,#rsvp,#stream,.progress{touch-action:manipulation}
 @media (max-width:1320px){.speed .unit{display:none}.speed .spd{width:104px}.measure .unit{display:none}}
 @media (max-width:1180px) and (min-width:721px){.bar #toStart{order:-3}.bar .modes{order:-2}.bar .grow{order:-1;flex:0 0 100%;height:0}.bar .speed{margin-left:auto}}
 @media (pointer:coarse){
@@ -411,7 +424,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
   .bar .speed{order:4;flex:1;min-width:0}
   .bar .scrollseg,.bar .fixnseg{order:2}
   .bar .measure{display:none}
-  body[data-mode=rsvp] .bar .scrollseg,body[data-mode=free] .bar .scrollseg{display:none}
+  body[data-mode=rsvp] .bar .scrollseg,body[data-mode=stream] .bar .scrollseg,body[data-mode=free] .bar .scrollseg{display:none}
   .bar .speed .spd{flex:1;width:auto;min-width:50px}
   .bar .speed .unit{display:none}
   .bar .clock{order:4}
@@ -481,6 +494,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
       <button data-v="fix" title="Fikspunkter (2)">Fikspunkter</button>
       <button data-v="chunk" title="Fraser (3)">Fraser</button>
       <button data-v="rsvp" title="RSVP (4)">RSVP</button>
+      <button data-v="stream" title="Strøm: teksten glider vandret forbi i én linje (6)">Strøm</button>
       <button data-v="free" title="Fri læsning (5)">Fri læsning</button>
     </div>
     <span class="grow"></span>
@@ -538,6 +552,13 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
         </div>
       </article>
     </div>
+    <div id="stream" hidden>
+      <div class="st-win" id="stWin">
+        <i class="st-tick t"></i><i class="st-tick b"></i>
+        <div class="st-view" id="stView"><div class="st-track" id="stTrack"></div></div>
+        <div class="rv-help"><span class="keys-only">Mellemrum starter og pauser. Pil til venstre går en sætning tilbage.</span><span class="touch">Tryk for at starte og pause.</span></div>
+      </div>
+    </div>
     <div id="rsvp" hidden>
       <div class="rv">
         <i class="rv-tick t"></i><i class="rv-tick b"></i>
@@ -577,7 +598,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
 <aside id="settings" aria-label="Indstillinger">
   <div class="sh"><h2>Indstillinger</h2><button class="icon" id="closeSettings" aria-label="Luk indstillinger"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div>
 
-  <section class="sec" data-for="pacer fix chunk rsvp">
+  <section class="sec" data-for="pacer fix chunk rsvp stream">
     <h3>Tempo</h3>
     <div class="row"><label for="s-wpm">Hastighed</label><span class="ctl"><input id="s-wpm" type="range" data-key="wpm" min="50" max="2000" step="10"><output data-out="wpm"></output></span></div>
     <div class="row"><span>Forløb</span><div class="seg" data-key="prog"><button data-v="const">Fast</button><button data-v="ramp">Stigende</button><button data-v="sprint">Sprint</button></div></div>
@@ -618,6 +639,13 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
     <div class="row"><label for="s-orp">Fremhæv fokusbogstav</label><input id="s-orp" type="checkbox" class="switch" data-key="orp"></div>
     <div class="row"><label for="s-pu">Pause ved tegnsætning</label><input id="s-pu" type="checkbox" class="switch" data-key="punct"></div>
     <p class="hint">Ordene vises ét ad gangen på samme sted, så øjnene ikke skal bevæge sig. Du kan ikke kigge tilbage, og det koster forståelse. Brug pil til venstre til at gå en sætning tilbage.</p>
+  </section>
+
+  <section class="sec" data-for="stream">
+    <h3>Strøm</h3>
+    <div class="row"><span>Læsepunkt</span><div class="seg" data-key="streamAt"><button data-v="0.25" title="En fjerdedel inde på linjen">¼</button><button data-v="0.33" title="En tredjedel inde på linjen">⅓</button><button data-v="0.5" title="Midt på linjen">½</button></div></div>
+    <div class="row"><label for="s-sdim">Dæmp læst tekst</label><span class="ctl"><input id="s-sdim" type="range" data-key="dim" min="0" max="85" step="5"><output data-out="dim"></output></span></div>
+    <p class="hint">Teksten glider vandret forbi i én linje med jævn fart, der svarer til dine ord pr. minut. Hold blikket ved mærket. Antal tegn i topbjælken bestemmer, hvor meget af linjen der er synligt. Afsnit adskilles med ¶. Pil til venstre går en sætning tilbage.</p>
   </section>
 
   <section class="sec" data-for="pacer fix chunk">
@@ -677,7 +705,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
       <kbd>Mellemrum</kbd><span>Start og pause</span>
       <kbd>↑ ↓</kbd><span>Tempo ±10 (med Shift ±50)</span>
       <kbd>← →</kbd><span>Linje eller sætning tilbage og frem</span>
-      <kbd>1–5</kbd><span>Skift teknik</span>
+      <kbd>1–6</kbd><span>Skift teknik (6 er Strøm)</span>
       <kbd>+ −</kbd><span>Skriftstørrelse</span>
       <kbd>S</kbd><span>Indstillinger</span>
       <kbd>F</kbd><span>Fokustilstand</span>
@@ -770,7 +798,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
     <p>Freeware: må bruges, kopieres og deles gratis.</p>
     <p class="muted" style="font-size:14px">PDF-læsning med pdf.js fra Mozilla (Apache 2.0-licens). Ordbogsopslag via Free Dictionary API med data fra Wiktionary (CC BY-SA). Kilderne til eksempelteksten står under Om teknikkerne.</p>
     <p class="muted" style="font-size:14px">Tekstgenkendelsen (Ψ-OCR) bruger Tesseract via tesseract.js (Apache 2.0), pdf-lib (MIT) og UTIF.js (MIT).</p>
-    <p class="muted" style="font-size:13px">Version 18.11.2026 kl. 09.24</p>
+    <p class="muted" style="font-size:13px">Version 18.11.2026 kl. 09.41</p>
     <p class="muted" style="font-size:14px">Hent filen eller se koden: <a href="https://github.com/DAKI2501/reader" target="_blank" rel="noopener">github.com/DAKI2501/reader</a></p>
     <div class="actions"><button class="primary" data-close>Luk</button></div>
   </div>
@@ -853,6 +881,9 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
     <h3>RSVP</h3>
     <p>Ord vises ét ad gangen på samme sted, med fokusbogstavet markeret (som i Spritz). Det fjerner øjenbevægelserne, men også muligheden for at kigge tilbage. Schotter, Tran og Rayner (2014) viste, at forståelsen falder, når læseren ikke kan gå tilbage, både i lette og svære sætninger. Brug pil til venstre, når du mister tråden.</p>
 
+    <h3>Strøm (vandret rulning)</h3>
+    <p>Teksten glider fra højre mod venstre i én linje, pixel for pixel, forbi et fast læsepunkt. Formatet kaldes også Times Square. Kang og Muter (1989) fandt, at forståelsen ved jævn, pixelvis rulning var mindst lige så god som ved RSVP ved 100–300 ord i minuttet, og deltagerne foretrak den frem for de andre formater. I modsætning til RSVP ser du lidt af teksten før og efter læsepunktet. Antal tegn i topbjælken styrer, hvor meget der er synligt.</p>
+
     <h3>Fri læsning</h3>
     <p>Din målestok. Læs normalt, klik på det sidste ord, du nåede, og få dit tempo. Mål før og efter træning, og skriv altid ned, hvad du husker.</p>
 
@@ -869,6 +900,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
     <ul class="src">
       <li>Rayner, K., Schotter, E. R., Masson, M. E. J., Potter, M. C. &amp; Treiman, R. (2016). So much to read, so little time: How do we read, and can speed reading help? <i>Psychological Science in the Public Interest, 17</i>(1), 4–34. <a href="https://doi.org/10.1177/1529100615623267" target="_blank" rel="noopener">doi.org/10.1177/1529100615623267</a></li>
       <li>Schotter, E. R., Tran, R. &amp; Rayner, K. (2014). Don't believe what you read (only once): Comprehension is supported by regressions during reading. <i>Psychological Science, 25</i>(6), 1218–1226. <a href="https://doi.org/10.1177/0956797614531148" target="_blank" rel="noopener">doi.org/10.1177/0956797614531148</a></li>
+      <li>Kang, T. J. &amp; Muter, P. (1989). Reading dynamically displayed text. <i>Behaviour &amp; Information Technology, 8</i>(1), 33–42. <a href="https://doi.org/10.1080/01449298908914536" target="_blank" rel="noopener">doi.org/10.1080/01449298908914536</a></li>
       <li>Ferriss, T. (2009). Scientific speed reading: How to read 300% faster in 20 minutes (PX-projektet). <a href="https://tim.blog/2009/07/30/speed-reading-and-accelerated-learning/" target="_blank" rel="noopener">tim.blog</a></li>
     </ul>
 
@@ -975,14 +1007,14 @@ const store = {
 const DEF = {
   mode: 'pacer', wpm: 300, timer: 5, prog: 'const', ramp: 20, sprintX: 1.5, paraPause: true, sentPause: true,
   pacerStyle: 'pen', inset: 0, fixN: 2, fixLines: true, fixMark: 'dot', chunkN: 3,
-  rsvpN: 1, orp: true, punct: true, dim: 30,
+  rsvpN: 1, orp: true, punct: true, dim: 30, streamAt: 0.33,
   theme: 'light', font: 'serif', fs: 21, lh: 1.7, measure: 62, justify: false, eta: true,
   scroll: 'jump', nostop: false,
   showModes: true, showSpeed: true, showClock: true, showButtons: true, showTools: true, showLayout: true, showEta: true, showProgress: true,
   autoFade: true, focusFull: true
 };
-const MODES = ['pacer', 'fix', 'chunk', 'rsvp', 'free'];
-const MODE_NAME = { pacer: 'Pacer', fix: 'Fikspunkter', chunk: 'Fraser', rsvp: 'RSVP', free: 'Fri læsning', test: 'Måling' };
+const MODES = ['pacer', 'fix', 'chunk', 'rsvp', 'free', 'stream'];
+const MODE_NAME = { pacer: 'Pacer', fix: 'Fikspunkter', chunk: 'Fraser', rsvp: 'RSVP', stream: 'Strøm', free: 'Fri læsning', test: 'Måling' };
 const settings = Object.assign({}, DEF, store.get('settings', {}));
 if (!MODES.includes(settings.mode)) settings.mode = 'pacer';
 
@@ -1001,7 +1033,7 @@ const E = {};
  'spd','noStopBtn','openWords','openWords2','focusBtn','turbo','sumOrig','dlgWords','wfMeta','wfSort','wfUnit','wfStop','wfFilter','wfList','wfClear',
  'start','reader','input','file','go','goProgram','goProgram2','count','fromPageBox','fromPage','recent','recentList','allTexts','appendBtn','markBtn','noteFilter','openAppend','dlgAppend','appendMeta','appendText','appendFile','appendGo','ocrLink','histTabs','libBody','notes','closeNotes','noteQuote','noteText','noteSave','noteList','noteCopy','noteDownload','openNotes','openNotes2','ticks',
  'bar','toStart','wpmOut','clock','play','stop','openSettings','stage','text','under','guides','band','body','over',
- 'mTop','mBot','pen','dot','flag','rsvp','progress','fill','etaMore','etaPct','etaLeft','etaTotal','banner','skipPick','toast','settings','closeSettings',
+ 'mTop','mBot','pen','dot','flag','rsvp','stream','stWin','stView','stTrack','progress','fill','etaMore','etaPct','etaLeft','etaTotal','banner','skipPick','toast','settings','closeSettings',
  'dlgSummary','sumTitle','sumWpm','sumWords','sumTime','sumTargetLbl','sumTarget','sumRecall','sumComp','sumCompOut','sumEff','sumDiscard','sumUse','sumSave',
  'dlgStep','stepDots','stepNo','stepTitle','stepText','stepMeta','stepAbort','stepGo','dlgProgEnd','peB','peF','peNote',
  'dlgHistory','histBody','histClear','dlgSchulte','schSize','schTime','schBest','schGrid','schNew','dlgHelp','fixHint','fixFit'
@@ -1863,6 +1895,7 @@ function applyMarks() {
     if (on !== W[i].classList.contains('kw')) W[i].classList.toggle('kw', on);
   }
   if (S.unit && cfg('mode') === 'rsvp') showRsvp(S.unit);
+  if (S.unit && cfg('mode') === 'stream') { ST.els = null; setUnit(true); }
 }
 
 /* key-word list */
@@ -2087,7 +2120,7 @@ function renderText() {
   }
   E.body.innerHTML = out.join('');
   S.W = Array.from(E.body.getElementsByClassName('w'));
-  lineCache.clear(); S.wpl = null;
+  lineCache.clear(); S.wpl = null; ST.els = null;
   if (S.notes) paintNoteBars();
 }
 function paraOf(i) {
@@ -2157,7 +2190,10 @@ function wpmNow() {
 function computeUnit(pos) {
   const mode = cfg('mode');
   let u;
-  if (mode === 'rsvp') {
+  if (mode === 'stream') {
+    u = { start: pos, end: pos + 1, p: paraOf(pos) };
+    stGeom(u);
+  } else if (mode === 'rsvp') {
     const p = paraOf(pos), P = S.paras[p], N = cfg('rsvpN');
     let e = pos;
     while (e < P.end && e - pos < N) { e++; if (SENT_END.test(S.words[e - 1])) break; }
@@ -2195,6 +2231,12 @@ function timeUnit(u) {
   // full line takes as long as its words at the chosen speed.
   const mode = cfg('mode');
   if (mode === 'fix' && u.span != null) d = u.span * wordsPerLine(u.p) / cfg('fixN') * per;
+  // The stream glides at a constant speed: each word takes as long as its width on the line,
+  // and a word of average length takes one word's time at the chosen speed.
+  if (mode === 'stream') {
+    const adv = u.x1 - u.x0;
+    d = adv > 0.5 && ST.cw ? per * adv / ((ST.avg + 1) * ST.cw) : per * (S.words[u.start].length + 1) / (ST.avg + 1);
+  }
   u.move = d;
   // A short, text-bound pause where a sentence ends (sentence wrap-up), never random.
   if (cfg('sentPause') && !u.paraEnd && (mode === 'fix' || mode === 'chunk')) {
@@ -2245,6 +2287,7 @@ function placeUnit() {
   const u = S.unit, mode = cfg('mode');
   if (!u) return;
   if (mode === 'rsvp') { showRsvp(u); return; }
+  if (mode === 'stream') { u.rp = ST.vw * cfg('streamAt'); return; }
   const W = S.W;
   if (mode === 'free') {
     if (S.picking) return;
@@ -2317,6 +2360,11 @@ function resetSmooth() { S.sy = null; E.text.style.transform = ''; }
 function drawFrame() {
   const u = S.unit; if (!u) return;
   const mode = cfg('mode');
+  if (mode === 'stream') {
+    const f = clamp(S.el / u.move, 0, 1);
+    E.stTrack.style.transform = `translate3d(${(u.rp - u.x0 - (u.x1 - u.x0) * f).toFixed(2)}px,0,0)`;
+    return;
+  }
   if (mode !== 'pacer') return;
   const f = clamp(S.el / u.move, 0, 1), st = cfg('pacerStyle');
   if (st === 'pen') E.pen.style.transform = `translate(${u.x0 + (u.x1 - u.x0 - PENW) * f}px,${u.penY}px)`;
@@ -2340,7 +2388,7 @@ function ensureVisible(top, h, force) {
   }
 }
 function scrollToPos(force) {
-  if (cfg('mode') === 'rsvp' || !S.W.length) return;
+  if (cfg('mode') === 'rsvp' || cfg('mode') === 'stream' || !S.W.length) return;
   const el = S.W[S.pos];
   ensureVisible(el.offsetTop, el.offsetHeight, force);
 }
@@ -2358,6 +2406,53 @@ function showRsvp(u) {
   E.rvL.textContent = s.slice(0, i); E.rvC.textContent = s[i] || ''; E.rvR.textContent = s.slice(i + 1);
   E.rsvp.classList.toggle('kwon', rangeMarked(u.start, u.end));
 }
+
+/* ================= horizontal stream ================= */
+// The text glides from right to left in one line past a fixed reading point, pixel by pixel.
+// Only a window of words around the position is in the page; it is rebuilt as the reading moves on.
+const ST = { a: 0, b: 0, els: null, words: null, avg: 5, cw: 0, vw: 0 };
+function stBuild(pos) {
+  const W = S.words, P = S.paras, a = Math.max(0, pos - 60), b = Math.min(W.length, pos + 260);
+  let p = paraOf(a), h = '';
+  for (let i = a; i < b; i++) {
+    if (i > a) {
+      let sep = false;
+      while (p + 1 < P.length && i >= P[p + 1].start) { p++; sep = true; }
+      h += sep ? ' <span class="sep">¶</span> ' : ' ';
+    }
+    h += '<span class="w' + (S.W[i] && S.W[i].classList.contains('kw') ? ' kw' : '') + '">' + esc(W[i]) + '</span>';
+  }
+  E.stTrack.innerHTML = h;
+  ST.els = Array.from(E.stTrack.getElementsByClassName('w'));
+  ST.a = a; ST.b = b;
+  if (ST.words !== W) {
+    let n = 0; for (const w of W) n += w.length;
+    ST.avg = W.length ? n / W.length : 5; ST.words = W;
+  }
+}
+function stGeom(u) {
+  const pos = u.start, n = S.words.length;
+  if (!ST.els || ST.words !== S.words || pos < ST.a || pos >= ST.b || (pos < ST.a + 10 && ST.a > 0) || (pos > ST.b - 40 && ST.b < n)) stBuild(pos);
+  const el = ST.els[pos - ST.a], nx = ST.els[pos + 1 - ST.a];
+  u.x0 = el.offsetLeft;
+  u.x1 = nx ? nx.offsetLeft : el.offsetLeft + el.offsetWidth + ST.cw;
+}
+// Character width at the stream's size, the visible width (antal tegn) and where the reading point sits.
+function stLayout() {
+  if (cfg('mode') !== 'stream') return;
+  E.stream.style.setProperty('--stAt', cfg('streamAt'));
+  const pr = document.createElement('span');
+  pr.textContent = PROBE;
+  pr.style.cssText = 'position:absolute;left:0;top:0;visibility:hidden;white-space:nowrap';
+  E.stView.appendChild(pr);
+  const w = pr.getBoundingClientRect().width / PROBE.length;
+  pr.remove();
+  if (w > 0) { ST.cw = w; E.stWin.style.width = Math.round(settings.measure * w) + 'px'; }
+  ST.vw = E.stView.clientWidth;
+}
+new ResizeObserver(() => {
+  if (document.body.dataset.view === 'reader' && cfg('mode') === 'stream' && E.stView.clientWidth) { stLayout(); setUnit(true); }
+}).observe(E.stream);
 
 /* ================= session ================= */
 let wake = null;
@@ -2735,6 +2830,7 @@ function refreshLayout() {
   S.textW = S.colW ? estimateTextW() : 0;
   drawGuides();
   updateFixHint();
+  stLayout();
   if (S.words.length) setUnit(true);
 }
 // Keep the top bar on as few lines as possible, whatever fonts the system has.
@@ -2764,8 +2860,9 @@ function applyAll() {
   applyLook();
   const mode = cfg('mode');
   document.body.dataset.mode = mode;
-  E.stage.hidden = mode === 'rsvp';
+  E.stage.hidden = mode === 'rsvp' || mode === 'stream';
   E.rsvp.hidden = mode !== 'rsvp';
+  E.stream.hidden = mode !== 'stream';
   E.rsvp.classList.toggle('orp', !!cfg('orp'));
   syncControls();
   fitBar();
@@ -2896,6 +2993,7 @@ E.stage.addEventListener('click', e => {
   if (COARSE() && !S.playing) showLookChip(w);
 });
 E.rsvp.addEventListener('click', () => { if (!S.picking) toggle(); });
+E.stream.addEventListener('click', () => { if (!S.picking) toggle(); });
 E.skipPick.addEventListener('click', () => endPick(null));
 E.fixFit.addEventListener('click', () => setSetting('measure', +E.fixFit.dataset.target));
 E.openSettings.addEventListener('click', () => { closeNotes(); E.settings.classList.toggle('open'); });
@@ -2937,7 +3035,7 @@ document.addEventListener('mousemove', idleKick, { passive: true });
 function stepLine(dir) {
   if (S.picking || !S.words.length) return;
   const words = S.words;
-  if (cfg('mode') === 'rsvp') {
+  if (cfg('mode') === 'rsvp' || cfg('mode') === 'stream') {
     const sentStart = i => { while (i > 0 && !SENT_END.test(words[i - 1])) i--; return i; };
     if (dir < 0) { let s = sentStart(S.pos); if (S.pos - s < 3 && s > 0) s = sentStart(s - 1); S.pos = s; }
     else { let i = S.pos; while (i < words.length - 1 && !SENT_END.test(words[i])) i++; S.pos = Math.min(i + 1, words.length - 1); }
@@ -2953,7 +3051,7 @@ function stepLine(dir) {
     }
   }
   S.el = 0; setUnit(); savePos();
-  if (cfg('mode') !== 'rsvp') scrollToPos(false);
+  if (cfg('mode') !== 'rsvp' && cfg('mode') !== 'stream') scrollToPos(false);
 }
 function fontStep(d) { setSetting('fs', clamp(settings.fs + d, 15, 34)); }
 
@@ -2970,7 +3068,7 @@ document.addEventListener('keydown', e => {
   else if (k === 'ArrowDown') { e.preventDefault(); bumpWpm(e.shiftKey ? -50 : -10); }
   else if (k === 'ArrowLeft') { e.preventDefault(); stepLine(-1); }
   else if (k === 'ArrowRight') { e.preventDefault(); stepLine(1); }
-  else if (k >= '1' && k <= '5') setMode(MODES[+k - 1]);
+  else if (k >= '1' && k <= '6') setMode(MODES[+k - 1]);
   else if (k === 's' || k === 'S') E.settings.classList.toggle('open');
   else if (k === 'f' || k === 'F') setFocus(!S.focus);
   else if (k === 'k' || k === 'K') toggleNoStop(!settings.nostop);
