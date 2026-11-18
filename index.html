@@ -235,6 +235,10 @@ body.playing.idle .eta{opacity:.28}
 body[data-eta=off] .eta{display:none}
 @media (max-width:560px){.eta{right:10px;gap:10px}.eta .pct{display:none}}
 #banner{position:fixed;left:50%;bottom:44px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 12px 10px 18px;border-radius:12px;display:flex;align-items:center;gap:14px;box-shadow:0 16px 40px -12px rgba(0,0,0,.35);z-index:15;font-size:15px}
+#updBar{position:fixed;left:50%;bottom:44px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 12px 10px 18px;border-radius:12px;display:flex;align-items:center;gap:12px;box-shadow:0 16px 40px -12px rgba(0,0,0,.35);z-index:16;font-size:15px;max-width:calc(100vw - 24px)}
+#updBar[hidden]{display:none}
+#updBar button{background:transparent;border:1px solid currentColor;border-radius:7px;color:inherit;padding:5px 10px;font-size:13px;opacity:.8;white-space:nowrap}
+#updBar #updLater{border-color:transparent}
 #banner button{background:transparent;border:1px solid currentColor;border-radius:7px;color:inherit;padding:5px 10px;font-size:13px;opacity:.8}
 #toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);pointer-events:none;background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;z-index:50;font-size:14px;max-width:min(560px,90vw);box-shadow:0 16px 40px -12px rgba(0,0,0,.35)}
 
@@ -434,7 +438,7 @@ button,#stage,#rsvp,#stream,.progress{touch-action:manipulation}
   body.playing .bar .modes,body.playing .bar #stop,body.playing .bar .tools>:not(#markBtn){display:none}
   #settings,#notes{padding-bottom:calc(40px + env(safe-area-inset-bottom))}
   #body p.has-note,#body p.has-mark{margin-left:-11px;padding-left:8px}
-  #banner{bottom:auto;top:12px;max-width:calc(100vw - 24px)}
+  #banner,#updBar{bottom:auto;top:12px;max-width:calc(100vw - 24px)}
 }
 @media (prefers-reduced-motion:reduce){
   .mark::after{animation:none}
@@ -578,6 +582,7 @@ button,#stage,#rsvp,#stream,.progress{touch-action:manipulation}
   </footer>
 </div>
 
+<div id="updBar" role="status" hidden><span id="updMsg"></span><button id="updNow">Genindlæs nu</button><button id="updLater">Senere</button></div>
 <div id="banner" hidden><span>Klik på det sidste ord, du nåede at læse.</span><button id="skipPick">Spring over</button></div>
 <div id="toast" role="status" hidden></div>
 <div id="defPop" role="dialog" aria-label="Ordbog" hidden></div>
@@ -798,7 +803,7 @@ button,#stage,#rsvp,#stream,.progress{touch-action:manipulation}
     <p>Freeware: må bruges, kopieres og deles gratis.</p>
     <p class="muted" style="font-size:14px">PDF-læsning med pdf.js fra Mozilla (Apache 2.0-licens). Ordbogsopslag via Free Dictionary API med data fra Wiktionary (CC BY-SA). Kilderne til eksempelteksten står under Om teknikkerne.</p>
     <p class="muted" style="font-size:14px">Tekstgenkendelsen (Ψ-OCR) bruger Tesseract via tesseract.js (Apache 2.0), pdf-lib (MIT) og UTIF.js (MIT).</p>
-    <p class="muted" style="font-size:13px">Version 18.11.2026 kl. 09.41</p>
+    <p class="muted" style="font-size:13px" id="appVer">Version 18.11.2026 kl. 21.11</p>
     <p class="muted" style="font-size:14px">Hent filen eller se koden: <a href="https://github.com/DAKI2501/reader" target="_blank" rel="noopener">github.com/DAKI2501/reader</a></p>
     <div class="actions"><button class="primary" data-close>Luk</button></div>
   </div>
@@ -1003,6 +1008,10 @@ const store = {
   set(k, v) { try { localStorage.setItem('reader.' + k, JSON.stringify(v)); return true; } catch (e) { return false; } },
   del(k) { try { localStorage.removeItem('reader.' + k); } catch (e) {} }
 };
+
+// The version shown under Credits. When deploying, put the same text in version.txt:
+// open copies of Reader compare with it and reload by themselves.
+const APP_VERSION = '18.11.2026 kl. 21.11';
 
 const DEF = {
   mode: 'pacer', wpm: 300, timer: 5, prog: 'const', ramp: 20, sprintX: 1.5, paraPause: true, sentPause: true,
@@ -3260,6 +3269,77 @@ E.menu.addEventListener('click', () => setMenu(false));
 document.addEventListener('click', e => { if (!E.menu.hidden && !E.menu.contains(e.target)) setMenu(false); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
 
+/* ================= new version ================= */
+// version.txt on the server holds the newest version. When it is newer than this page, Reader says so
+// and reloads by itself once nothing is in progress, then opens the same text at the same place.
+const verKey = v => { const m = /^(\d{2})\.(\d{2})\.(\d{4}) kl\. (\d{2})\.(\d{2})$/.exec(String(v || '').trim()); return m ? m[3] + m[2] + m[1] + m[4] + m[5] : ''; };
+const upd = { found: null, auto: true, checked: 0, later: false, left: 6, iv: 0 };
+['updBar', 'updMsg', 'updNow', 'updLater'].forEach(id => E[id] = document.getElementById(id));
+async function checkUpdate(force) {
+  if (upd.found || !navigator.onLine || !(location.protocol === 'https:' || location.hostname === 'localhost')) return;
+  const now = Date.now();
+  if (!force && now - upd.checked < 2 * 60000) return;
+  upd.checked = now;
+  try {
+    if (navigator.serviceWorker) navigator.serviceWorker.getRegistration().then(r => r && r.update()).catch(() => {});
+    const r = await fetch('version.txt?t=' + now, { cache: 'no-store' });
+    if (!r.ok) return;
+    const v = (await r.text()).trim(), k = verKey(v);
+    if (!k || k <= verKey(APP_VERSION) || upd.found) return;
+    upd.found = v;
+    // A reload that did not bring the new version (a stale copy somewhere) is not repeated by itself.
+    let tried = null; try { tried = sessionStorage.getItem('reader.updTried'); } catch (e) {}
+    upd.auto = tried !== v;
+    upd.iv = setInterval(updTick, 1000); updTick();
+  } catch (e) {}
+}
+// Nothing would be lost by reloading now.
+function updSafe() {
+  if (S.playing || S.session || S.picking || S.program) return false;
+  if (document.querySelector('dialog[open]') || E.notes.classList.contains('open')) return false;
+  const a = document.activeElement;
+  if (a && a.matches('textarea, input:not([type=range]):not([type=checkbox]):not([type=file]), select')) return false;
+  if (document.body.dataset.view === 'start' && E.input.value.trim()) return false;
+  return true;
+}
+function updTick() {
+  if (!upd.found) return;
+  if (upd.later || S.playing || S.picking) { E.updBar.hidden = true; upd.left = 6; return; }
+  E.updBar.hidden = false;
+  if (!upd.auto || !updSafe()) { upd.left = 6; E.updMsg.textContent = 'Der er en ny version af Reader.'; return; }
+  if (document.hidden) return;
+  if (--upd.left <= 0) { applyUpdate(); return; }
+  E.updMsg.textContent = `Ny version af Reader. Genindlæser om ${upd.left} s …`;
+}
+async function applyUpdate() {
+  clearInterval(upd.iv);
+  E.updMsg.textContent = 'Henter den nye version …';
+  try {
+    sessionStorage.setItem('reader.updTried', upd.found || '');
+    if (document.body.dataset.view === 'reader' && S.doc && S.words.length) {
+      savePos();
+      if (S.meta && IDB) await DB.put('docs', S.meta).catch(() => {});
+      const sample = !S.docId && S.doc.title === SAMPLE_TITLE;
+      sessionStorage.setItem('reader.reopen', JSON.stringify({ id: S.docId || null, sample, legacy: !S.docId && !sample, pos: origPos(S.pos) }));
+    }
+    // Take the page from the network, not from the copy kept for offline use.
+    if (navigator.onLine && window.caches) {
+      for (const k of await caches.keys()) {
+        const c = await caches.open(k);
+        await c.delete(new URL('index.html', location.href).href, { ignoreSearch: true });
+        await c.delete(new URL('./', location.href).href);
+      }
+    }
+  } catch (e) {}
+  location.reload();
+}
+E.updNow.addEventListener('click', () => applyUpdate());
+E.updLater.addEventListener('click', () => { upd.later = true; E.updBar.hidden = true; });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(false); });
+window.addEventListener('focus', () => checkUpdate(false));
+setInterval(() => { if (!document.hidden) checkUpdate(true); }, 30 * 60000);
+setTimeout(() => checkUpdate(true), 3000);
+
 /* ================= boot ================= */
 E.ocrLink.href = OCR_URL;
 if (OCR_URL !== 'ocr.html') { E.ocrLink.target = '_blank'; E.ocrLink.rel = 'noopener'; }
@@ -3282,6 +3362,16 @@ applyLook();
 syncControls();
 showResume();
 updateCount();
+E.appVer = document.getElementById('appVer'); if (E.appVer) E.appVer.textContent = 'Version ' + APP_VERSION;
+try {
+  const t = sessionStorage.getItem('reader.updTried');
+  if (t && verKey(t) <= verKey(APP_VERSION)) { sessionStorage.removeItem('reader.updTried'); toast('Reader er opdateret til den nyeste version.', 2600); }
+  const r = JSON.parse(sessionStorage.getItem('reader.reopen') || 'null');
+  sessionStorage.removeItem('reader.reopen');
+  if (r && r.id) openFromLibrary(r.id);
+  else if (r && r.sample) { S.meta = null; S.docId = null; openReader(makeDoc({ title: SAMPLE_TITLE, paragraphs: parsePlain(SAMPLE), pageStarts: [] }), r.pos || 0); loadNotes(); }
+  else if (r && r.legacy) { const d = store.get('doc', null); if (d) { S.meta = null; S.docId = null; openReader(makeDoc(d), r.pos || 0); loadNotes(); } }
+} catch (e) {}
 window.__reader = { S, settings, cfg };
 })();
 </script>

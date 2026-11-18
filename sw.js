@@ -3,6 +3,7 @@
 // version shows up the next time the app is opened; without a connection the stored
 // copy is used. Other files are served from the store and refreshed in the background.
 // Ψ-OCR's program files and language models (ocr/…) are stored the first time they are used.
+// version.txt is never stored: open copies of Reader read it to see whether a newer version is out.
 const CACHE = 'reader-v3';
 const FILES = ['./', './index.html', './ocr.html', './ocr/app.js', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png'];
 
@@ -16,6 +17,7 @@ const offline = () => new Response('Reader er offline, og siden er ikke gemt end
 self.addEventListener('fetch', e => {
   const req = e.request, url = new URL(req.url);
   if (req.method !== 'GET' || url.origin !== location.origin) return; // dictionary look-ups go straight to the network
+  if (url.pathname.endsWith('/version.txt')) return; // the check for a new version always asks the server
   if (req.mode === 'navigate') {
     // network first (a quick check with the server), stored copy if offline or slow
     const key = url.pathname.endsWith('/') ? './index.html' : url.pathname.replace(/^.*\//, './');
