@@ -223,7 +223,7 @@ body[data-eta=off] .eta{display:none}
 @media (max-width:560px){.eta{right:10px;gap:10px}.eta .pct{display:none}}
 #banner{position:fixed;left:50%;bottom:44px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 12px 10px 18px;border-radius:12px;display:flex;align-items:center;gap:14px;box-shadow:0 16px 40px -12px rgba(0,0,0,.35);z-index:15;font-size:15px}
 #banner button{background:transparent;border:1px solid currentColor;border-radius:7px;color:inherit;padding:5px 10px;font-size:13px;opacity:.8}
-#toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;z-index:50;font-size:14px;max-width:min(560px,90vw);box-shadow:0 16px 40px -12px rgba(0,0,0,.35)}
+#toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);pointer-events:none;background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;z-index:50;font-size:14px;max-width:min(560px,90vw);box-shadow:0 16px 40px -12px rgba(0,0,0,.35)}
 
 /* ---------- settings ---------- */
 #settings,#notes{position:fixed;top:0;right:0;bottom:0;width:min(370px,100vw);background:var(--panel);box-shadow:-1px 0 0 var(--rule),-30px 0 60px -34px rgba(0,0,0,.35);transform:translateX(105%);visibility:hidden;transition:transform .24s ease,visibility 0s linear .24s;z-index:20;overflow:auto;padding:16px 22px 40px}
@@ -770,7 +770,7 @@ button,#stage,#rsvp,.progress{touch-action:manipulation}
     <p>Freeware: må bruges, kopieres og deles gratis.</p>
     <p class="muted" style="font-size:14px">PDF-læsning med pdf.js fra Mozilla (Apache 2.0-licens). Ordbogsopslag via Free Dictionary API med data fra Wiktionary (CC BY-SA). Kilderne til eksempelteksten står under Om teknikkerne.</p>
     <p class="muted" style="font-size:14px">Tekstgenkendelsen (Ψ-OCR) bruger Tesseract via tesseract.js (Apache 2.0), pdf-lib (MIT) og UTIF.js (MIT).</p>
-    <p class="muted" style="font-size:13px">Version 17.11.2026 kl. 09.10</p>
+    <p class="muted" style="font-size:13px">Version 18.11.2026 kl. 09.24</p>
     <p class="muted" style="font-size:14px">Hent filen eller se koden: <a href="https://github.com/DAKI2501/reader" target="_blank" rel="noopener">github.com/DAKI2501/reader</a></p>
     <div class="actions"><button class="primary" data-close>Luk</button></div>
   </div>
