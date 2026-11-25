@@ -1,14 +1,9 @@
-// Pacer: marks the word the clock is at and keeps it in view. The first view; the others
-// (fixation points, phrases, RSVP, stream) take the same three members.
-//   needs   what the view requires of a clock (see time/clock.js, fits)
-//   draw    called on every frame with clock.now()
-//   clear   remove everything the view has drawn
+// Pacer: marks the word the clock is at and keeps it in view. The view contract is in index.js.
 
 export function createPacer(text) {
   const supported = typeof Highlight !== 'undefined' && CSS.highlights;
   let last = -1;
   return {
-    needs: { grain: 'word' },
     draw({ running }) {
       if (running === last) return;
       last = running;

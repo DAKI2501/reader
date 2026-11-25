@@ -9,7 +9,8 @@ import { fits } from '../time/clock.js';
 import { createTempoClock } from '../time/tempo.js';
 import { db } from '../store/db.js';
 import { createTextView } from '../views/text.js';
-import { createPacer, drawNotes } from '../views/pacer.js';
+import { drawNotes } from '../views/pacer.js';
+import { views } from '../views/index.js';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -20,40 +21,70 @@ let R = null;   // what is open: { id, meta, doc, clock, text, view, notes }
 
 /* ---------- start screen ---------- */
 
+const byName = new Intl.Collator('da', { numeric: true }).compare;
+const item = m => `<li><button data-open="${esc(m.id)}">${esc(m.title)}<small>${m.words} ord · ${Math.round(100 * (m.progress || 0))} %</small></button><button data-remove="${esc(m.id)}" aria-label="Fjern ${esc(m.title)}">×</button></li>`;
+
+// Texts opened together (several files, or a folder) form a collection and are listed by file
+// name, so numbered lectures and chapters come in order. Other texts are listed newest first.
 async function showStart() {
   if (R) { savePlace(); R.clock.dispose(); R.view.clear(); R = null; }
   $('read').hidden = true; $('start').hidden = false;
-  const list = await db.list();
+  const list = await db.list(), groups = new Map();
+  for (const m of list) if (m.group) groups.set(m.group, [...(groups.get(m.group) || []), m]);
   $('libraryHead').hidden = !list.length;
-  $('library').innerHTML = list.map(m => `<li><button data-open="${esc(m.id)}">${esc(m.title)}<small>${m.words} ord · ${Math.round(100 * (m.progress || 0))} %</small></button><button data-remove="${esc(m.id)}" aria-label="Fjern ${esc(m.title)}">×</button></li>`).join('');
+  $('library').innerHTML =
+    [...groups].map(([name, ms]) => `<li class="group"><details${ms[0] === list.find(m => m.group) ? ' open' : ''}><summary>${esc(name)}<small>${ms.length} ${ms.length === 1 ? 'tekst' : 'tekster'}</small></summary><ul>${ms.sort((a, b) => byName(a.name || a.title, b.name || b.title)).map(item).join('')}</ul></details></li>`).join('')
+    + list.filter(m => !m.group).map(item).join('');
 }
 
-async function addAndOpen(doc) {
+async function add(doc, { group = null, name = null } = {}) {
   const id = 'd' + hash(doc.title + '|' + doc.wordCount + '|' + doc.blocks.slice(0, 40).map(b => b.text).join('\n'));
-  if (!(await db.meta(id))) {
-    await db.putText(id, serialize(doc));
-    await db.putMeta({ id, title: doc.title, words: doc.wordCount, added: Date.now(), opened: Date.now(), place: null, progress: 0 });
-  }
-  return open(id);
+  const old = await db.meta(id);
+  if (!old) await db.putText(id, serialize(doc));
+  await db.putMeta({ ...(old || { id, title: doc.title, words: doc.wordCount, added: Date.now(), place: null, progress: 0 }), opened: Date.now(), name: old?.name || name, group: old?.group || group });   // a text stays in the collection it first came in with
+  return id;
 }
 
-$('go').addEventListener('click', () => { const t = $('paste').value.trim(); if (t) { $('paste').value = ''; addAndOpen(importText(t)); } });
 const PROBLEMS = {
-  drm: 'Bogen er kopibeskyttet (DRM) og kan ikke åbnes.',
-  scanned: 'PDF\'en er scannet og har ingen tekst. Kør den gennem Ψ-OCR først.',
-  zip: 'Filen kunne ikke læses som en e-bog.',
-  empty: 'Der var ingen tekst i filen.'
+  drm: 'er kopibeskyttet (DRM) og kan ikke åbnes',
+  scanned: 'er scannet og har ingen tekst; kør den gennem Ψ-OCR først',
+  zip: 'kunne ikke læses som en e-bog',
+  empty: 'har ingen tekst'
 };
 const status = text => { $('status').textContent = text || ''; };
+const known = new RegExp('\\.(' + accepts.replace(/\./g, '').replace(/,/g, '|') + ')$', 'i');
+
+/** Bring in files, into a collection when `group` is given. Gives the id of the last one that worked. */
+async function addFiles(files, group) {
+  const failed = []; let last = null, n = 0;
+  for (const f of files) {
+    status(`Åbner ${++n} af ${files.length}: ${f.name}`);
+    try { last = await add(await importFile(f, (i, of) => status(`Åbner ${n} af ${files.length}: ${f.name} (${i} af ${of})`)), { group, name: f.name }); }
+    catch (err) { console.error(err); failed.push(`${f.name} ${PROBLEMS[err.code] || 'kunne ikke åbnes'}`); }
+  }
+  status(failed.join('. '));
+  return last;
+}
+
+$('go').addEventListener('click', async () => { const t = $('paste').value.trim(); if (t) { $('paste').value = ''; open(await add(importText(t))); } });
 $('file').accept = accepts;
-$('file').addEventListener('change', async e => {
-  const f = e.target.files[0]; e.target.value = '';
-  if (!f) return;
-  try {
-    status(`Åbner ${f.name} …`);
-    const doc = await importFile(f, (n, of) => status(`Åbner ${f.name}: ${n} af ${of}`));
-    status(); await addAndOpen(doc);
-  } catch (err) { console.error(err); status(PROBLEMS[err.code] || `Filen kunne ikke åbnes (${err.message}).`); }
+$('file').addEventListener('change', e => {
+  const files = [...e.target.files]; e.target.value = '';
+  if (files.length < 2) return files.length && addFiles(files).then(id => id && open(id));
+  // several files at once: offer to keep them together under a name
+  $('groupCount').textContent = `${files.length} filer valgt.`; $('groupName').value = '';
+  $('groupOk').onclick = async () => { $('groupDialog').close(); await addFiles(files, $('groupName').value.trim() || null); showStart(); };
+  $('groupDialog').showModal();
+});
+// A folder becomes a collection named after the folder; subfolders become "Folder / Subfolder".
+$('folderButton').hidden = !('webkitdirectory' in HTMLInputElement.prototype) || matchMedia('(pointer: coarse)').matches;
+$('folder').addEventListener('change', async e => {
+  const files = [...e.target.files].filter(f => known.test(f.name) && !f.name.startsWith('.')); e.target.value = '';
+  const groups = new Map();
+  for (const f of files) { const g = f.webkitRelativePath.split('/').slice(0, -1).join(' / '); groups.set(g, [...(groups.get(g) || []), f]); }
+  if (!files.length) return status('Mappen har ingen filer, Reader kan åbne.');
+  for (const [g, fs] of groups) await addFiles(fs, g);
+  showStart();
 });
 $('library').addEventListener('click', async e => {
   const b = e.target.closest('button'); if (!b) return;
@@ -68,12 +99,14 @@ async function open(id) {
   meta.opened = Date.now(); await db.putMeta(meta);
   $('start').hidden = true; $('read').hidden = false;
 
-  const text = createTextView($('text'), doc), view = createPacer(text);
+  const text = createTextView($('text'), doc);
   const clock = createTempoClock({ wpm: setting('wpm', 300) });
-  if (!fits(clock.caps, view.needs)) throw new Error('view and clock do not fit');
   clock.load(doc);
   clock.seek(resolvePlace(doc, meta.place).running);
-  R = { id, meta, doc, clock, text, view, notes: await db.notes(id) };
+  R = { id, meta, doc, clock, text, view: null, notes: await db.notes(id) };
+  // only views that this clock can drive are offered
+  $('view').innerHTML = views.map(v => `<option value="${v.id}"${fits(clock.caps, v.needs) ? '' : ' disabled'}>${v.name}</option>`).join('');
+  setView(setting('view', 'pacer'));
 
   const rate = $('rate'), caps = clock.caps.rate;
   rate.min = caps.min; rate.max = caps.max; rate.step = caps.step; rate.value = clock.rate;
@@ -82,13 +115,24 @@ async function open(id) {
   clock.on('rate', showRate);
   $('play').textContent = meta.place ? 'Fortsæt' : 'Start';
   showNotes();
-  text.reveal(clock.now().running, false);
-  requestAnimationFrame(frame);
+  if (!looping) { looping = true; requestAnimationFrame(frame); }
 }
 
-let shown = -1;
+function setView(id) {
+  const entry = views.find(v => v.id === id && fits(R.clock.caps, v.needs)) || views[0];
+  if (R.view) R.view.clear();
+  R.view = entry.create(R.text, $('stage'));
+  if (R.view.mount) R.view.mount();
+  $('text').hidden = entry.covers; $('view').value = entry.id;
+  remember('view', entry.id);
+  if (!entry.covers) R.text.reveal(R.clock.now().running, false);
+}
+$('view').addEventListener('change', e => { setView(e.target.value); e.target.blur(); });
+$('stage').addEventListener('click', () => toggle());
+
+let shown = -1, looping = false;
 function frame() {
-  if (!R) return;
+  if (!R) { looping = false; return; }
   const now = R.clock.now();
   R.view.draw(now);
   if (now.running !== shown) { shown = now.running; if (shown % 20 === 0 || !R.clock.playing) showWhere(shown); }
@@ -109,7 +153,7 @@ function savePlace() {
 }
 
 const toggle = () => R.clock.playing ? R.clock.pause() : R.clock.play();
-function go(running) { R.clock.seek(running); R.text.reveal(R.clock.now().running); showWhere(R.clock.now().running); if (!R.clock.playing) savePlace(); }
+function go(running) { R.clock.seek(running); if (!$('text').hidden) R.text.reveal(R.clock.now().running); showWhere(R.clock.now().running); if (!R.clock.playing) savePlace(); }
 function setRate(n) { R.clock.setRate(n); remember('wpm', R.clock.rate); }
 /** Start of the next or previous block. */
 function stepBlock(dir) {
@@ -127,7 +171,7 @@ $('text').addEventListener('click', e => {
   if (w !== null) go(w);
 });
 addEventListener('keydown', e => {
-  if (!R || e.target.closest('textarea, dialog') || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (!R || e.target.closest('textarea, dialog, select') || e.metaKey || e.ctrlKey || e.altKey) return;
   const step = R.clock.caps.rate.step;
   const keys = { ' ': toggle, ArrowUp: () => setRate(R.clock.rate + step), ArrowDown: () => setRate(R.clock.rate - step), ArrowRight: () => stepBlock(+1), ArrowLeft: () => stepBlock(-1), h: toggleMark, m: writeNote };
   const fn = keys[e.key.length === 1 ? e.key.toLowerCase() : e.key];

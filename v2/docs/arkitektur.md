@@ -28,7 +28,7 @@ Derfor står den gamle urørt og er den, der bruges. Den nye bygges i `v2/` med 
 
 ```
 app/      binder sammen: vælger tidskilde og visning
-views/    tekst på siden, pacer (senere fikspunkter, fraser, RSVP, strøm)
+views/    tekst på siden, pacer, RSVP (senere fikspunkter, fraser, strøm); nye visninger meldes ind i views/index.js
 import/   tekst, EPUB, PDF (senere Ψ-OCR)  →  reader-dok/1; nye filtyper meldes ind i import/index.js
 sync/     tid ↔ sted, uanset hvor tiderne kom fra
 time/     tidskilder: tempo (senere lydfil, enhedens stemme)
@@ -50,6 +50,7 @@ core/     dokument, steder, noter – ingen DOM, intet lager
 | B8 | Enhedens stemme som ur med sætningspræcision | Gratis, sender intet ud | Ordgrænser er upålidelige i Safari på iOS |
 | B9 | Ingen API-nøgler i Readeren | Offentlig browser-app | Lydfiler laves andre steder |
 | B10 | Eget lager (`reader2`) | Kan ikke ødelægge den gamles data | Tekster hentes over én gang ved skiftet |
+| B11 | Samlinger i stedet for levende mapper | Flere filer eller en mappe åbnet på én gang bliver en samling, ordnet efter filnavn. Virker også på telefon, hvor en browser ikke kan følge en mappe | Nye filer i mappen kommer først med, når mappen åbnes igen. En tekst ligger i én samling |
 
 ## 5. Faser
 
@@ -58,7 +59,7 @@ core/     dokument, steder, noter – ingen DOM, intet lager
 | **F0** Fundament | Kontrakter, kerne, tempo-ur, synkroniseringskort, tekstimport, lydprøve | gjort |
 | **F1** Skal | Indsæt eller åbn tekst, læs med pacer, tempo, indhold i niveauer, position, markeringer og noter med eksport | gjort; prøvet i Chrome, ikke på telefon |
 | **F2** Import | EPUB (element-id som blok-id, indhold i niveauer, trykte sidetal, ZIP læst stykvis) og PDF (sider, bogmærker som indhold) | gjort; prøvet i Chrome med små prøvefiler. Mangler: overdragelse fra Ψ-OCR |
-| **F3** Visninger | Fikspunkter, fraser, RSVP, strøm, fri læsning, én ad gangen | |
+| **F3** Visninger | Fikspunkter, fraser, RSVP, strøm, fri læsning, én ad gangen | RSVP gjort; resten mangler |
 | **F4** Enhedens stemme | Andet ur; første prøve på kontrakten | |
 | **F5** Lydfil | Tredje ur, Media Overlays, låseskærm, pause ved stopmærker | kræver lydprøvens resultat |
 | **F6** Resten og skiftet | Træning, historik, ordbog, nøgleord, offline; flyt biblioteket; skift roden | |

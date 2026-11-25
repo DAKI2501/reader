@@ -30,6 +30,8 @@ export function createTextView(root, doc) {
       r.setStart(node, o[w]); r.setEnd(node, o[last] + b.words[last].length);
       return r;
     },
+    /** Word number `running` as text. */
+    word(running) { const i = blockOf(running); return doc.blocks[i].words[running - doc.starts[i]]; },
     /** The word number at a point on the screen, or null outside the text. */
     wordAt(x, y) {
       const p = document.caretPositionFromPoint ? document.caretPositionFromPoint(x, y) : null;

@@ -15,7 +15,8 @@
   <textarea id="paste" placeholder="Indsæt en tekst her" rows="8"></textarea>
   <div class="row">
     <button id="go" class="main">Læs</button>
-    <label class="button">Åbn fil<input id="file" type="file" hidden></label>
+    <label class="button">Åbn filer<input id="file" type="file" multiple hidden></label>
+    <label class="button" id="folderButton" hidden>Åbn mappe<input id="folder" type="file" webkitdirectory multiple hidden></label>
   </div>
   <p id="status" role="status"></p>
   <h2 id="libraryHead" hidden>Dine tekster</h2>
@@ -26,8 +27,10 @@
   <header class="bar">
     <button id="back" aria-label="Tilbage til dine tekster">←</button>
     <button id="where" aria-label="Indhold"></button>
+    <select id="view" aria-label="Visning"></select>
   </header>
   <article id="text"></article>
+  <div id="stage" hidden></div>
   <footer class="bar">
     <button id="play" class="main">Start</button>
     <input id="rate" type="range" aria-label="Tempo">
@@ -39,6 +42,13 @@
 </main>
 
 <dialog id="tocDialog"><h2>Indhold</h2><ol id="tocList"></ol><button data-close>Luk</button></dialog>
+
+<dialog id="groupDialog">
+  <h2>Saml teksterne?</h2>
+  <p id="groupCount"></p>
+  <input id="groupName" type="text" placeholder="Navn på samlingen (kan være tomt)">
+  <div class="row"><button id="groupOk" class="main">Åbn</button></div>
+</dialog>
 
 <dialog id="noteDialog">
   <h2>Note</h2>
