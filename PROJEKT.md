@@ -6,7 +6,7 @@ repo: DAKI2501/reader
 ejer: "claude.ai-projektet READER"
 sources: [README.md, v2/docs/arkitektur.md, v2/schema/dokument.md, v2/schema/noter.md, v2/schema/tidskilde.md]
 links: []
-quality: "Den gamle Reader (roden): i daglig brug, ingen tests. Den nye (v2/): kernen testet, første skal prøvet i Chrome."
+quality: "Den gamle Reader (roden): i daglig brug, ingen tests. Den nye (v2/): kernen testet; skal og import af EPUB og PDF prøvet i Chrome med små prøvefiler."
 foelsomt: false
 opdateret: 2026-11-25
 ---

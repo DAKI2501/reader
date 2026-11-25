@@ -22,6 +22,8 @@ button.main { background: var(--acc); border-color: var(--acc); color: var(--bg)
 button:focus-visible, .button:focus-within, textarea:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
 textarea { width: 100%; font: inherit; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: .5rem; padding: .75rem; resize: vertical; }
 
+#status { color: var(--dim); min-height: 1.5em; margin: .5rem 0 0; }
+
 #library, #notesList, #tocList { list-style: none; margin: 0; padding: 0; }
 #library li, #notesList li { display: flex; gap: .5rem; align-items: center; border-top: 1px solid var(--line); padding: .35rem 0; }
 #library li button:first-child, #notesList li button:first-child, #tocList button { flex: 1; text-align: left; border: 0; padding-left: 0; }

@@ -46,6 +46,7 @@ export function createDocument(input) {
     const block = { id, type, text, words };
     if (type === 'heading') block.level = Math.min(6, Math.max(1, b.level | 0 || 1));
     if (b.label) block.label = String(b.label);
+    if (b.ref) block.ref = String(b.ref);
     if (b.speak === null) block.speak = null; else if (typeof b.speak === 'string' && b.speak.trim() && b.speak !== text) block.speak = b.speak.trim();
     idAt[idAt.length - 1] = id;
     index.set(id, blocks.length); starts.push(n); n += words.length; blocks.push(block);

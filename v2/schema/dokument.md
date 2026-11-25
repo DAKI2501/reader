@@ -26,6 +26,7 @@ Det, enhver importør afleverer, og det, der gemmes på enheden. Kode: `src/core
 | `id` | Entydigt i dokumentet. Kommer fra kilden (elementets id i en EPUB), ellers dannes det: `r` + 8 hex-cifre af en hash over blokkens første 12 ord (små bogstaver, kun bogstaver og tal). To ens blokke får `-2`, `-3` … Et id fra kilden, der optræder to gange, er en fejl. |
 | `type` | `heading` (med `level` 1–6) · `para` · `quote` · `list` · `footnote` · `caption` · `table` · `formula` · `reference` · `other`. Ukendt type bliver `para`. |
 | `text` | Den viste tekst. Blødt bindestreg fjernes, mellemrum samles. Blokke uden ord udelades. |
+| `ref` | Valgfri. Blokkens adresse i kilden, fx `kapitel1.xhtml#p12` i en EPUB. Bruges til at koble lydklip og henvisninger til blokken. |
 | `label` | Valgfri. Kildens egen betegnelse for stedet. Readeren fortolker den ikke; den vises og føres med ud i noter. |
 | `speak` | Mangler: teksten læses op, som den står. `null`: vises, men læses ikke op. En streng: det, der læses op i stedet. Markering ord for ord er kun mulig, når `speak` mangler. |
 

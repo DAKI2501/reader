@@ -4,6 +4,7 @@
 import { parse, serialize, toPlace, resolvePlace, quoteAt, tocPath, tocSpans, pageAt, blockIndexAt, hash } from '../core/document.js';
 import { createNote, locate, exportNotes, exportText } from '../core/notes.js';
 import { importText } from '../import/text.js';
+import { importFile, accepts } from '../import/index.js';
 import { fits } from '../time/clock.js';
 import { createTempoClock } from '../time/tempo.js';
 import { db } from '../store/db.js';
@@ -37,12 +38,22 @@ async function addAndOpen(doc) {
 }
 
 $('go').addEventListener('click', () => { const t = $('paste').value.trim(); if (t) { $('paste').value = ''; addAndOpen(importText(t)); } });
+const PROBLEMS = {
+  drm: 'Bogen er kopibeskyttet (DRM) og kan ikke åbnes.',
+  scanned: 'PDF\'en er scannet og har ingen tekst. Kør den gennem Ψ-OCR først.',
+  zip: 'Filen kunne ikke læses som en e-bog.',
+  empty: 'Der var ingen tekst i filen.'
+};
+const status = text => { $('status').textContent = text || ''; };
+$('file').accept = accepts;
 $('file').addEventListener('change', async e => {
   const f = e.target.files[0]; e.target.value = '';
   if (!f) return;
-  const raw = await f.text();
-  // a .json file is a document someone else made in the reader-dok/1 format
-  addAndOpen(/\.json$/i.test(f.name) ? parse(JSON.parse(raw)) : importText(raw, { name: f.name }));
+  try {
+    status(`Åbner ${f.name} …`);
+    const doc = await importFile(f, (n, of) => status(`Åbner ${f.name}: ${n} af ${of}`));
+    status(); await addAndOpen(doc);
+  } catch (err) { console.error(err); status(PROBLEMS[err.code] || `Filen kunne ikke åbnes (${err.message}).`); }
 });
 $('library').addEventListener('click', async e => {
   const b = e.target.closest('button'); if (!b) return;
