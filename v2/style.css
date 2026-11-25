@@ -1,0 +1,55 @@
+:root {
+  color-scheme: light dark;
+  --bg: #ECEEEA; --ink: #1d2320; --dim: #5d6661; --line: #c9cec8; --acc: #2f6f5e; --now: #f2d675; --note: #cfe3dc;
+  --measure: 34rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #171a18; --ink: #e2e6e1; --dim: #96a099; --line: #343a36; --acc: #7fc4b0; --now: #6d5a12; --note: #24403a; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 1rem/1.5 system-ui, sans-serif; }
+main { max-width: var(--measure); margin: 0 auto; padding: 1.25rem 1rem; }
+h1 { font-size: 1.4rem; margin: 0 0 1rem; }
+h1 small { font-size: .8rem; font-weight: 400; color: var(--dim); margin-left: .5rem; }
+h2 { font-size: 1rem; margin: 1.75rem 0 .5rem; }
+.row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .75rem; }
+
+button, .button {
+  font: inherit; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: .5rem;
+  padding: .55rem .9rem; min-height: 2.75rem; cursor: pointer;
+}
+button.main { background: var(--acc); border-color: var(--acc); color: var(--bg); }
+button:focus-visible, .button:focus-within, textarea:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+textarea { width: 100%; font: inherit; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: .5rem; padding: .75rem; resize: vertical; }
+
+#status { color: var(--dim); min-height: 1.5em; margin: .5rem 0 0; }
+
+#library, #notesList, #tocList { list-style: none; margin: 0; padding: 0; }
+#library li, #notesList li { display: flex; gap: .5rem; align-items: center; border-top: 1px solid var(--line); padding: .35rem 0; }
+#library li button:first-child, #notesList li button:first-child, #tocList button { flex: 1; text-align: left; border: 0; padding-left: 0; }
+#library small, #notesList small { display: block; color: var(--dim); }
+#tocList button { width: 100%; padding-left: calc((var(--level) - 1) * 1rem); }
+#tocList [aria-current] { color: var(--acc); font-weight: 600; }
+
+/* reading */
+#read { padding-block: 3.75rem 5.5rem; }
+.bar { position: fixed; left: 0; right: 0; z-index: 1; display: flex; gap: .5rem; align-items: center; padding: .5rem max(1rem, calc((100vw - var(--measure)) / 2 + 1rem)); background: var(--bg); }
+header.bar { top: 0; border-bottom: 1px solid var(--line); }
+footer.bar { bottom: 0; border-top: 1px solid var(--line); padding-bottom: max(.5rem, env(safe-area-inset-bottom)); }
+#where { flex: 1; min-width: 0; text-align: left; border: 0; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#rate { flex: 1; min-width: 4rem; accent-color: var(--acc); }
+#rateOut { min-width: 3.2rem; text-align: right; font-variant-numeric: tabular-nums; color: var(--dim); }
+
+#text { font: 1.15rem/1.65 Georgia, 'Iowan Old Style', serif; cursor: text; }
+#text p { margin: 0 0 1em; }
+#text h2, #text h3, #text h4, #text h5, #text h6 { font-family: system-ui, sans-serif; line-height: 1.25; margin: 1.8em 0 .6em; }
+#text h2 { font-size: 1.35em; } #text h3 { font-size: 1.15em; } #text h4, #text h5, #text h6 { font-size: 1em; }
+#text .quote { margin-inline: 1.25em; font-style: italic; }
+#text .footnote, #text .caption, #text .reference, #text .table { font-size: .9em; color: var(--dim); }
+::highlight(reader-note) { background: var(--note); }
+::highlight(reader-now) { background: var(--now); color: var(--ink); }
+
+dialog { width: min(32rem, calc(100vw - 2rem)); max-height: 85vh; border: 1px solid var(--line); border-radius: .75rem; background: var(--bg); color: var(--ink); padding: 1.25rem; }
+dialog::backdrop { background: rgb(0 0 0 / .35); }
+dialog h2 { margin-top: 0; }
+blockquote { margin: 0 0 .75rem; padding-left: .75rem; border-left: 3px solid var(--line); color: var(--dim); }

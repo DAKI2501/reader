@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ECEEEA">
+<title>Reader</title>
+<link rel="icon" href="../icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main id="start">
+  <h1>Reader <small>ny udgave under opbygning</small></h1>
+  <textarea id="paste" placeholder="Indsæt en tekst her" rows="8"></textarea>
+  <div class="row">
+    <button id="go" class="main">Læs</button>
+    <label class="button">Åbn fil<input id="file" type="file" hidden></label>
+  </div>
+  <p id="status" role="status"></p>
+  <h2 id="libraryHead" hidden>Dine tekster</h2>
+  <ul id="library"></ul>
+</main>
+
+<main id="read" hidden>
+  <header class="bar">
+    <button id="back" aria-label="Tilbage til dine tekster">←</button>
+    <button id="where" aria-label="Indhold"></button>
+  </header>
+  <article id="text"></article>
+  <footer class="bar">
+    <button id="play" class="main">Start</button>
+    <input id="rate" type="range" aria-label="Tempo">
+    <output id="rateOut"></output>
+    <button id="mark" aria-label="Markér stedet (H)">▍</button>
+    <button id="note" aria-label="Skriv en note (M)">✎</button>
+    <button id="notes" aria-label="Noter og markeringer">☰</button>
+  </footer>
+</main>
+
+<dialog id="tocDialog"><h2>Indhold</h2><ol id="tocList"></ol><button data-close>Luk</button></dialog>
+
+<dialog id="noteDialog">
+  <h2>Note</h2>
+  <blockquote id="noteQuote"></blockquote>
+  <textarea id="noteText" rows="4" placeholder="Din note"></textarea>
+  <div class="row"><button id="noteSave" class="main">Gem</button><button data-close>Fortryd</button></div>
+</dialog>
+
+<dialog id="notesDialog">
+  <h2>Noter og markeringer</h2>
+  <ul id="notesList"></ul>
+  <div class="row"><button id="exportText">Hent som tekst</button><button id="exportJson">Hent som JSON</button><button data-close>Luk</button></div>
+</dialog>
+
+<script type="module" src="src/app/main.js"></script>
+</body>
+</html>

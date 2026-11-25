@@ -18,6 +18,7 @@ self.addEventListener('fetch', e => {
   const req = e.request, url = new URL(req.url);
   if (req.method !== 'GET' || url.origin !== location.origin) return; // dictionary look-ups go straight to the network
   if (url.pathname.endsWith('/version.txt')) return; // the check for a new version always asks the server
+  if (url.pathname.includes('/v2/')) return; // the new Reader under v2/ is developed beside this one and is not stored here
   if (req.mode === 'navigate') {
     // network first (a quick check with the server), stored copy if offline or slow
     const key = url.pathname.endsWith('/') ? './index.html' : url.pathname.replace(/^.*\//, './');
