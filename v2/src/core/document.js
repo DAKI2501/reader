@@ -9,7 +9,7 @@ export const tokenize = text => String(text).split(/\s+/).filter(Boolean);
 
 // Small synchronous hash (FNV-1a, 32 bit). Ids only have to be stable and unlikely to collide
 // inside one document; collisions are resolved with a suffix.
-function fnv(str) {
+export function hash(str) {
   let h = 0x811c9dc5;
   for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
   return (h >>> 0).toString(16).padStart(8, '0');
@@ -19,7 +19,7 @@ function fnv(str) {
 // letters and digits only. Stable when the same text is imported again.
 export function generatedId(text) {
   const key = tokenize(text).slice(0, 12).join(' ').toLowerCase().replace(/[^\p{L}\p{N} ]/gu, '');
-  return 'r' + fnv(key);
+  return 'r' + hash(key);
 }
 
 /**
