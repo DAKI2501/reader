@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Reader – lydprøve</title>
+<style>
+  :root { color-scheme: light dark; --bg: #ECEEEA; --ink: #1d2320; --dim: #5d6661; --line: #c9cec8; --acc: #2f6f5e; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #171a18; --ink: #e6e9e5; --dim: #9aa39d; --line: #343a36; --acc: #7fc4b0; } }
+  body { margin: 0; padding: 20px 16px 60px; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, sans-serif; max-width: 640px; margin-inline: auto; }
+  h1 { font-size: 1.25rem; margin: 0 0 4px; }
+  h2 { font-size: 1rem; margin: 28px 0 8px; }
+  p { margin: 0 0 12px; color: var(--dim); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  button { font: inherit; padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--ink); min-height: 44px; }
+  button.on, button.main { background: var(--acc); border-color: var(--acc); color: var(--bg); }
+  label { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-top: 1px solid var(--line); }
+  label:last-of-type { border-bottom: 1px solid var(--line); }
+  input[type=checkbox] { width: 22px; height: 22px; flex: none; margin-top: 2px; }
+  #state { font-variant-numeric: tabular-nums; color: var(--ink); }
+  pre { font: 12px/1.45 ui-monospace, Menlo, monospace; white-space: pre-wrap; word-break: break-word; border: 1px solid var(--line); border-radius: 8px; padding: 10px; max-height: 320px; overflow: auto; margin: 0; }
+</style>
+</head>
+<body>
+<h1>Lydprøve til den nye Reader</h1>
+<p>Prøver, om en lydfil kan spille med låst skærm, når Reader ligger på hjemmeskærmen. Læg siden på hjemmeskærmen (Del → Føj til hjemmeskærm), åbn den derfra, og gå punkterne igennem. Hvert klip har sin egen tone og sin egen rytme: klip 1 pulserer langsomt, klip 4 hurtigt.</p>
+
+<div class="row">
+  <button id="play" class="main">Afspil</button>
+  <button id="near">Spring til 10 s før slut</button>
+</div>
+<div class="row" id="clips"></div>
+<div class="row" id="rates"></div>
+<p id="state">Ikke startet.</p>
+
+<h2>Gå igennem i denne rækkefølge</h2>
+<div id="checks"></div>
+
+<h2>Log</h2>
+<div class="row"><button id="copy">Kopiér resultat og log</button><button id="clear">Ryd</button></div>
+<pre id="log"></pre>
+
+<audio id="a" preload="auto" playsinline></audio>
+
+<script>
+// One real <audio> element and the Media Session API: the combination the new Reader plans to use.
+// Everything that happens is logged with a time stamp and kept in localStorage, so the log
+// survives the page being closed while the phone is locked.
+const CLIPS = [['Klip 1', 0], ['Klip 2', 30], ['Klip 3', 60], ['Klip 4', 90]];
+const CHECKS = [
+  ['spiller', 'Lyden spiller, også med lydløs-knappen slået til'],
+  ['laast', 'Lås skærmen i mindst 2 minutter: lyden fortsætter, og tonen skifter hvert halve minut'],
+  ['knapper', 'Låseskærmen viser titel og afspil/pause, og de virker'],
+  ['spring', 'Næste og forrige på låseskærmen springer mellem klip'],
+  ['fart', 'Hastighed 2× holder, også efter låsning og efter et spring'],
+  ['filskift', 'Lad fil A løbe ud med låst skærm: fil B (høj, hurtig tone) starter af sig selv'],
+  ['andenapp', 'Åbn en anden app i et minut: lyden fortsætter'],
+  ['genoptag', 'Sæt på pause fra låseskærmen, vent 2 minutter, tryk afspil: den fortsætter samme sted']
+];
+const $ = id => document.getElementById(id), a = $('a');
+const KEY = 'reader-v2-lydproeve';
+const saved = (() => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } })();
+saved.log = saved.log || []; saved.checks = saved.checks || {};
+const store = () => { try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {} };
+function log(msg) {
+  const d = new Date(), t = d.toTimeString().slice(0, 8);
+  saved.log.push(`${t} ${msg}`); if (saved.log.length > 400) saved.log.shift();
+  store(); $('log').textContent = saved.log.join('\n'); $('log').scrollTop = 1e9;
+}
+
+let file = 'a', rate = 1;
+function load(name) { file = name; a.src = name + '.m4a'; log('fil ' + name.toUpperCase() + ' valgt'); }
+const clipNow = () => file === 'b' ? 4 : Math.min(3, Math.floor(a.currentTime / 30));
+// Seeking before the file's length is known is ignored by some browsers, so wait for it.
+function seekPlay(t) {
+  const go = () => { a.currentTime = t; a.playbackRate = rate; a.play().catch(e => log('play() afvist: ' + e.name)); };
+  if (a.readyState >= 1) go(); else { a.addEventListener('loadedmetadata', go, { once: true }); a.load(); }
+}
+function goClip(i) { if (file !== 'a' || !a.src) load('a'); log('spring til ' + CLIPS[i][0]); seekPlay(CLIPS[i][1]); }
+
+$('clips').innerHTML = CLIPS.map((c, i) => `<button data-i="${i}">${c[0]}</button>`).join('');
+$('clips').addEventListener('click', e => { const b = e.target.closest('button'); if (b) goClip(+b.dataset.i); });
+$('rates').innerHTML = [1, 1.5, 2, 3].map(r => `<button data-r="${r}">${r}×</button>`).join('');
+function setRate(r) { rate = r; a.playbackRate = r; a.defaultPlaybackRate = r; for (const b of $('rates').children) b.classList.toggle('on', +b.dataset.r === r); log('hastighed ' + r + '×'); }
+$('rates').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setRate(+b.dataset.r); });
+$('play').addEventListener('click', () => { if (!a.src) load('a'); a.paused ? a.play().catch(e => log('play() afvist: ' + e.name)) : a.pause(); });
+$('near').addEventListener('click', () => { if (file !== 'a' || !a.src) load('a'); log('spring til 10 s før slut på fil A'); seekPlay(110); });
+
+$('checks').innerHTML = CHECKS.map(([k, t]) => `<label><input type="checkbox" data-k="${k}"${saved.checks[k] ? ' checked' : ''}><span>${t}</span></label>`).join('');
+$('checks').addEventListener('change', e => { saved.checks[e.target.dataset.k] = e.target.checked; store(); log((e.target.checked ? 'JA: ' : 'fjernet: ') + e.target.dataset.k); });
+
+for (const ev of ['play', 'pause', 'ended', 'stalled', 'waiting', 'error', 'ratechange']) a.addEventListener(ev, () => {
+  log(`lyd: ${ev} ved ${a.currentTime.toFixed(1)} s (fil ${file.toUpperCase()}, ${a.playbackRate}×, siden ${document.visibilityState === 'visible' ? 'synlig' : 'skjult'})`);
+  $('play').textContent = a.paused ? 'Afspil' : 'Pause';
+  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = a.paused ? 'paused' : 'playing';
+});
+// The case the format decision hangs on: can the next file start while the page is in the background?
+a.addEventListener('ended', () => {
+  if (file !== 'a') return;
+  load('b'); a.playbackRate = rate;
+  a.play().then(() => log('fil B startede efter fil A')).catch(e => log('fil B kunne IKKE starte: ' + e.name + ' – ' + e.message));
+});
+let lastBeat = -1;
+a.addEventListener('timeupdate', () => {
+  const c = clipNow();
+  $('state').textContent = `Fil ${file.toUpperCase()} · ${file === 'b' ? 'slutfil' : CLIPS[c][0]} · ${a.currentTime.toFixed(0)} s · ${a.playbackRate}×`;
+  const beat = Math.floor(a.currentTime / 15);
+  if (beat !== lastBeat) { lastBeat = beat; log(`  spiller: ${a.currentTime.toFixed(0)} s, siden ${document.visibilityState === 'visible' ? 'synlig' : 'skjult'}`); }
+  if (a.playbackRate !== rate) { log(`hastigheden var faldet til ${a.playbackRate}×, sat tilbage til ${rate}×`); a.playbackRate = rate; }
+  if ('mediaSession' in navigator && navigator.mediaSession.setPositionState && isFinite(a.duration)) {
+    try { navigator.mediaSession.setPositionState({ duration: a.duration, position: Math.min(a.currentTime, a.duration), playbackRate: a.playbackRate }); } catch (e) {}
+  }
+  if ('mediaSession' in navigator && window.MediaMetadata && navigator.mediaSession.metadata && navigator.mediaSession.metadata.title !== title()) setMeta();
+});
+const title = () => file === 'b' ? 'Slutfil (fil B)' : CLIPS[clipNow()][0];
+function setMeta() { navigator.mediaSession.metadata = new MediaMetadata({ title: title(), artist: 'Reader – lydprøve', album: 'Forelæsning (prøve)' }); }
+
+document.addEventListener('visibilitychange', () => log('siden er nu ' + (document.visibilityState === 'visible' ? 'synlig' : 'skjult')));
+
+log('--- åbnet ---');
+log('som app på hjemmeskærmen: ' + ((navigator.standalone || matchMedia('(display-mode: standalone)').matches) ? 'ja' : 'nej (åbnet i browseren)'));
+log('Media Session: ' + ('mediaSession' in navigator ? 'findes' : 'findes ikke'));
+if ('audioSession' in navigator) { try { navigator.audioSession.type = 'playback'; log('audioSession sat til "playback"'); } catch (e) { log('audioSession kunne ikke sættes: ' + e.name); } } else log('audioSession: findes ikke i denne browser');
+if ('mediaSession' in navigator) {
+  if (window.MediaMetadata) setMeta();
+  const on = (name, fn) => { try { navigator.mediaSession.setActionHandler(name, d => { log('låseskærm: ' + name + (d && d.seekTime != null ? ' ' + d.seekTime.toFixed(0) + ' s' : '')); fn(d || {}); }); } catch (e) { log('handling ikke understøttet: ' + name); } };
+  on('play', () => a.play().catch(e => log('play() afvist: ' + e.name)));
+  on('pause', () => a.pause());
+  on('nexttrack', () => goClip(Math.min(3, (file === 'b' ? 3 : clipNow() + 1))));
+  on('previoustrack', () => goClip(Math.max(0, (file === 'b' ? 3 : clipNow() - 1))));
+  on('seekto', d => { if (d.seekTime != null) a.currentTime = d.seekTime; });
+}
+setRate(1);
+
+$('copy').addEventListener('click', async () => {
+  const out = ['Reader v2 lydprøve', navigator.userAgent, '', ...CHECKS.map(([k, t]) => `[${saved.checks[k] ? 'x' : ' '}] ${t}`), '', ...saved.log].join('\n');
+  try { await navigator.clipboard.writeText(out); $('copy').textContent = 'Kopieret'; } catch (e) { const r = document.createRange(); r.selectNodeContents($('log')); getSelection().removeAllRanges(); getSelection().addRange(r); $('copy').textContent = 'Markér og kopiér selv'; }
+});
+$('clear').addEventListener('click', () => { saved.log = []; saved.checks = {}; store(); for (const c of $('checks').querySelectorAll('input')) c.checked = false; log('--- ryddet ---'); });
+</script>
+</body>
+</html>
